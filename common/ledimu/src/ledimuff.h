@@ -2,7 +2,7 @@
 #define LEDIMUFF_H
 
 #include <memory>
-#include "imurunner.h"
+#include "ledimu_error.h"
 
 #ifndef LEDIMU_FILENAME
 #define LEDIMU_FILENAME "ledimu.prog"
@@ -26,11 +26,12 @@
  #endif // SD_EMU_H
 #endif // SD_H
 
+struct LedImuHeader;
 typedef struct LedImuData LedImuData_t;
 typedef struct LedImuStateAllocationEntry LedImuStateAllocationEntry_t;
 typedef struct LedImuStateAllocationTable LedImuStateAllocationTable_t;
-
 class ImuRunner;
+
 
 class LedImuFile
 {
@@ -38,8 +39,8 @@ public:
   LedImuFile(std::unique_ptr<ImuRunner> & runner);
   ~LedImuFile();
 
-  bool Load();
-  bool Load(const char *filename);
+  LedImuFileError Load();
+  LedImuFileError Load(const char *filename);
 
   int RunState(int state_number);
 
@@ -51,5 +52,7 @@ public:
 private:
   SDFILE(m_file);
   std::unique_ptr<ImuRunner> m_runner;
+  struct LedImuHeader m_header;
 
+  LedImuFileError read_header();
 };

@@ -8,7 +8,7 @@ SRC = $(wildcard ./ledimuff/*.cpp) ./main.cpp
 OBJ = $(subst ./,$(OBJ_DIR)/, $(subst .cpp,.o, $(SRC)))
 PRODUCT_OBJ = $(BUILD_DIR)/ledimu.a
 
-CFLAGS += -I $(GTEST_ROOT) -I $(GTEST_ROOT)/include -I ../src
+CFLAGS += -I $(GTEST_ROOT) -I $(GTEST_ROOT)/include -I ../src -g
 
 all: build run
 

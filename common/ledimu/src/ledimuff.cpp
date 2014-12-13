@@ -1,15 +1,19 @@
+#include "ledimu_data.h"
 #include "ledimuff.h"
+#include "imurunner.h"
+#include <iostream>
+
 
 LedImuFile::LedImuFile(std::unique_ptr<ImuRunner> &runner) : m_runner(std::move(runner))
 {
 }
 
-bool LedImuFile::Load()
+LedImuFileError LedImuFile::Load()
 {
     return Load(LEDIMU_FILENAME);
 }
 
-bool LedImuFile::Load(const char *filename)
+LedImuFileError LedImuFile::Load(const char *filename)
 {
 #ifdef SD_H
 #endif // SD_H
@@ -20,10 +24,10 @@ bool LedImuFile::Load(const char *filename)
 	if (buffer.open(filename, std::ios::in | std::ios::binary))
 	{
 		m_file = std::unique_ptr<STREAM_TYPE>(new STREAM_TYPE(&buffer));
-		return true;
+		return read_header();
 	}
-	
-	return false;
+
+	return LedImuFileError::file_not_found;
 #endif // SD_EMU_H
 }
 
@@ -34,6 +38,22 @@ LedImuFile::~LedImuFile()
 int LedImuFile::RunState(int state_number)
 {
 	return 0;
+}
+
+LedImuFileError LedImuFile::read_header()
+{
+	m_file->read(m_header.start_marker, 4);
+	if (!*m_file)
+	{
+		return LedImuFileError::invalid_file;
+	}
+
+	if (strncmp(m_header.start_marker, "PARK", 4))
+	{
+		return LedImuFileError::invalid_file;
+	}
+
+	return LedImuFileError::success;
 }
 
 #ifndef LEDIMU_READONLY
