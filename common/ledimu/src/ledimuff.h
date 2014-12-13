@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <tuple>
 
 struct LedImuHeader;
 typedef struct LedImuData LedImuData_t;
@@ -17,6 +18,7 @@ typedef struct LedImuStateAllocationEntry LedImuStateAllocationEntry_t;
 typedef struct LedImuStateAllocationTable LedImuStateAllocationTable_t;
 class ImuRunner;
 
+using uint8_uptra = std::unique_ptr<uint8_t[]>;
 
 class LedImuFile
 {
@@ -55,5 +57,6 @@ private:
   template<typename T>
   LedImuFileError read_array(std::unique_ptr<T[]> &buffer, int count);
 
-  std::unique_ptr<uint8_t[]> get_state(int state_number); // Implicit move?
+  uint8_uptra get_state(int state_number); // Implicit move?
+  int run_state(uint8_t *buffer);
 };

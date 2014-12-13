@@ -19,23 +19,9 @@ LedImuFile::~LedImuFile()
 {
 }
 
-int LedImuFile::RunState(int state_number)
-{
-	if (state_number < 0 || state_number > m_header.state_count)
-	{
-		return -2;
-	}
 
-	std::unique_ptr<uint8_t[]> code = get_state(state_number);
-	if (code == nullptr)
-	{
-		return -1;
-	}
 
-	return 0;
-}
-
-std::unique_ptr<uint8_t[]> LedImuFile::get_state(int state_number)
+uint8_uptra LedImuFile::get_state(int state_number)
 {
 	uint16_t file_position = m_header.state_position[state_number];
 	uint16_t state_size;
@@ -52,7 +38,7 @@ std::unique_ptr<uint8_t[]> LedImuFile::get_state(int state_number)
 	m_file->read(reinterpret_cast<char *>(retval), state_size);
 	RET_NULL_IF_FAILED(m_file)
 
-	return std::unique_ptr<uint8_t[]>(retval);
+	return uint8_uptra(retval);
 }
 
 std::unique_ptr<char[]> LedImuFile::GetStateName(int state_number)

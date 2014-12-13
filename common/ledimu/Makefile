@@ -1,6 +1,6 @@
 include make/clang.mk
 
-SRC = src/ledimuff.cpp src/ledimuff_load.cpp
+SRC = $(wildcard src/[a-zA-Z]*.cpp)
 OBJ = $(subst src/,build/objs/, $(subst .cpp,.o, $(SRC)))
 
 CFLAGS += -DSD_EMU_H -g
