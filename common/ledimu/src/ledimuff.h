@@ -60,6 +60,10 @@ private:
 
   LedImuFileError read_header();
   LedImuFileError read_magic_marker(char *buffer, const char marker[4]);
+  
   template<typename T>
   LedImuFileError read(T *buffer);
+
+  template<typename T>
+  LedImuFileError read_array(std::unique_ptr<T[]> &buffer, int count);
 };

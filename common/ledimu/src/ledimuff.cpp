@@ -3,7 +3,7 @@
 #include "imurunner.h"
 #include <iostream>
 
-#define CHECK_ERROR(x) if ((retval=x) != 0) { std::cout << m_file->tellg() << std::endl; return retval; }
+#define CHECK_ERROR(x) if ((retval=x) != 0) { return retval; }
 
 LedImuFile::LedImuFile(std::unique_ptr<ImuRunner> &runner) : m_runner(std::move(runner))
 {
@@ -39,6 +39,7 @@ LedImuFileError LedImuFile::Load(const char *filename)
 inline LedImuFileError LedImuFile::read_header()
 {
 	LedImuFileError retval;
+	
 	CHECK_ERROR(read_magic_marker(m_header.start_marker, "PARK"))
 	CHECK_ERROR(read(&m_header.state_count))
 
@@ -49,7 +50,19 @@ inline LedImuFileError LedImuFile::read_header()
 
 	CHECK_ERROR(read(&m_header.state_name_mapping_position))
 	CHECK_ERROR(read(&m_header.state_decision_position))
+	CHECK_ERROR(read_array<uint16_t>(m_header.state_position,
+		m_header.state_count));
 	CHECK_ERROR(read_magic_marker(m_header.end_marker, "HEND"))
+
+	return LedImuFileError::success;
+}
+
+template<typename T>
+LedImuFileError LedImuFile::read_array(std::unique_ptr<T[]> &buffer, int count)
+{
+	buffer.reset(new T[count]);
+	m_file->read(reinterpret_cast<char *>(buffer.get()),
+		count * sizeof(T));
 
 	return LedImuFileError::success;
 }
@@ -85,7 +98,6 @@ LedImuFileError LedImuFile::read(T *buffer)
 	m_file->read(reinterpret_cast<char *>(buffer), sizeof(T));
 	if (!*m_file)
 	{
-		std::cout << "read() " << m_file->tellg() << std::endl;
 		return LedImuFileError::invalid_file;
 	}
 
