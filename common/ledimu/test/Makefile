@@ -4,10 +4,10 @@ GTEST_ROOT = ../../gtest-1.7.0
 BUILD_DIR = ../build
 OBJ_DIR = $(BUILD_DIR)/objs
 
-SRC = ./main.cpp
+SRC = $(wildcard ./ledimuff/*.cpp) ./main.cpp
 OBJ = $(subst ./,$(OBJ_DIR)/, $(subst .cpp,.o, $(SRC)))
 
-CFLAGS += -I $(GTEST_ROOT) -I $(GTEST_ROOT)/include
+CFLAGS += -I $(GTEST_ROOT) -I $(GTEST_ROOT)/include -I ../src
 
 all: build run
 
@@ -21,8 +21,9 @@ gtest: $(GTEST_ROOT)/src/gtest-all.cc
 tests: $(OBJ)
 	$(CC) -o $(BUILD_DIR)/tests $(BUILD_DIR)/libgtest.a $(OBJ)
 
-$(OBJ_DIR)/%.o: %.cpp
+$(OBJ_DIR)/%.o: ./%.cpp
+	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 run: tests
-	$(BUILD_DIR)/tests
+	$(BUILD_DIR)/tests --gtest_shuffle
