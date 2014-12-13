@@ -57,12 +57,22 @@ std::unique_ptr<uint8_t[]> LedImuFile::get_state(int state_number)
 
 std::unique_ptr<char[]> LedImuFile::GetStateName(int state_number)
 {
+	uint8_t string_length;
 	// Seek to the beginning of state name mapping
 	m_file->seekg(m_header.state_name_mapping_position);
 	RET_NULL_IF_FAILED(m_file)
 
-	uint8_t string_length;
 	read(&string_length);
+	while(state_number > 0 && *m_file) {
+		std::cout << m_file->tellg() << ":" << string_length << "0x" << std::hex << string_length << std::endl;
+		m_file->seekg(string_length, m_file->cur);
+		--state_number;
+		read(&string_length);
+	}
+
+	if (state_number > 0) {
+		return nullptr;
+	}
 
 	auto retval = new char[string_length+1] {0};
 	m_file->read(retval, string_length);
