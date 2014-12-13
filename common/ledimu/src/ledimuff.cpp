@@ -3,7 +3,7 @@
 #include "imurunner.h"
 #include <iostream>
 
-#define CHECK_ERROR(x) if ((retval=x) != 0) { return retval; }
+#define CHECK_ERROR(x) if ((retval=x) != 0) { std::cout << m_file->tellg() << std::endl; return retval; }
 
 LedImuFile::LedImuFile(std::unique_ptr<ImuRunner> &runner) : m_runner(std::move(runner))
 {
@@ -21,7 +21,7 @@ LedImuFileError LedImuFile::Load(const char *filename)
 
 #ifdef SD_EMU_H
 	std::filebuf buffer;
-	LedImuFileError retval;
+	LedImuFileError retval = LedImuFileError::success;
 
 	if (!buffer.open(filename, std::ios::in | std::ios::binary))
 	{
@@ -49,6 +49,7 @@ inline LedImuFileError LedImuFile::read_header()
 
 	CHECK_ERROR(read(&m_header.state_name_mapping_position))
 	CHECK_ERROR(read(&m_header.state_decision_position))
+	CHECK_ERROR(read_magic_marker(m_header.end_marker, "HEND"))
 
 	return LedImuFileError::success;
 }
@@ -70,7 +71,7 @@ LedImuFileError LedImuFile::read_magic_marker(char *buffer, const char marker[4]
 		return LedImuFileError::invalid_file;
 	}
 
-	if (strncmp(m_header.start_marker, marker, 4))
+	if (strncmp(buffer, marker, 4))
 	{
 		return LedImuFileError::invalid_file;
 	}
@@ -84,6 +85,7 @@ LedImuFileError LedImuFile::read(T *buffer)
 	m_file->read(reinterpret_cast<char *>(buffer), sizeof(T));
 	if (!*m_file)
 	{
+		std::cout << "read() " << m_file->tellg() << std::endl;
 		return LedImuFileError::invalid_file;
 	}
 
