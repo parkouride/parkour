@@ -14,7 +14,7 @@ all: build run
 build: gtest tests
 	@echo "Building Tests"
 
-gtest:
+gtest: $(GTEST_ROOT)/src/gtest-all.cc
 	$(CC) $(CFLAGS) -pthread -c $(GTEST_ROOT)/src/gtest-all.cc -o $(OBJ_DIR)/gtest-all.o
 	ar -rv $(BUILD_DIR)/libgtest.a $(OBJ_DIR)/gtest-all.o
 
@@ -24,5 +24,5 @@ tests: $(OBJ)
 $(OBJ_DIR)/%.o: %.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
-run:
-	@echo "Running Tests"
+run: tests
+	$(BUILD_DIR)/tests
