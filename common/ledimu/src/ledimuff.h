@@ -49,10 +49,17 @@ public:
   bool Write(const char *filename, LedImuData_t&);
 #endif // LEDIMU_READONY
 
+  uint8_t GetNumberStates() { return m_header.state_count; }
+  uint16_t GetNamePosition() { return m_header.state_name_mapping_position; }
+  uint16_t GetDecisionPosition() { return m_header.state_decision_position; }
+
 private:
   SDFILE(m_file);
   std::unique_ptr<ImuRunner> m_runner;
   struct LedImuHeader m_header;
 
   LedImuFileError read_header();
+  LedImuFileError read_magic_marker(char *buffer, const char marker[4]);
+  template<typename T>
+  LedImuFileError read(T *buffer);
 };
