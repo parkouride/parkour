@@ -37,6 +37,7 @@ public:
   uint8_t GetNumberStates() { return m_header.state_count; }
   uint16_t GetNamePosition() { return m_header.state_name_mapping_position; }
   uint16_t GetDecisionPosition() { return m_header.state_decision_position; }
+  std::unique_ptr<char[]> GetStateName(int state_number);
 
 private:
   std::unique_ptr<std::ifstream> m_file;

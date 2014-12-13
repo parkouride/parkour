@@ -4,6 +4,8 @@
 #include <iostream>
 #include <iomanip>
 
+#define RET_NULL_IF_FAILED(x) if (!*x) { return nullptr; }
+
 
 LedImuFile::LedImuFile(std::unique_ptr<ImuRunner> &runner, uint8_t pixel_count)
     : m_runner(std::move(runner)),
@@ -35,27 +37,37 @@ int LedImuFile::RunState(int state_number)
 
 std::unique_ptr<uint8_t[]> LedImuFile::get_state(int state_number)
 {
-	if (!m_file->fail())
-	{
-		m_file->clear();
-	}
-
 	uint16_t file_position = m_header.state_position[state_number];
 	uint16_t state_size;
 
 	// Seek to beginning of state
 	m_file->seekg(file_position, m_file->beg);
-	if (!*m_file) { std::cout << "seek failed" << std::endl; return nullptr; }
+	RET_NULL_IF_FAILED(m_file)
 
 	// Read the length of the state
 	m_file->read(reinterpret_cast<char *>(&state_size), 2);
-	if (!*m_file) { return nullptr; }
+	RET_NULL_IF_FAILED(m_file)
 
 	auto retval = new uint8_t[state_size];
 	m_file->read(reinterpret_cast<char *>(retval), state_size);
-	if (!*m_file) { return nullptr; }
+	RET_NULL_IF_FAILED(m_file)
 
 	return std::unique_ptr<uint8_t[]>(retval);
+}
+
+std::unique_ptr<char[]> LedImuFile::GetStateName(int state_number)
+{
+	// Seek to the beginning of state name mapping
+	m_file->seekg(m_header.state_name_mapping_position);
+	RET_NULL_IF_FAILED(m_file)
+
+	uint8_t string_length;
+	read(&string_length);
+
+	auto retval = new char[string_length+1] {0};
+	m_file->read(retval, string_length);
+
+	return std::unique_ptr<char[]>(retval);
 }
 
 

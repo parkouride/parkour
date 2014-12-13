@@ -54,3 +54,12 @@ TEST(LoadTest, pixel_check_not_enough_pixels)
 
 	ASSERT_EQ(ledimufile.Load(LEDIMU_FILENAME), LedImuFileError::not_enough_pixels);	
 }
+
+TEST(HeaderDataTest, state_name)
+{
+	std::unique_ptr<ImuRunner> runner;
+	LedImuFile ledimufile(runner, 2);
+
+	ledimufile.Load(LEDIMU_FILENAME);
+	ASSERT_STREQ("Test", ledimufile.GetStateName(0).get());
+}
