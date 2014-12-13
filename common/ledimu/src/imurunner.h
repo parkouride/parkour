@@ -1,0 +1,11 @@
+#pragma once
+
+class ImuRunner
+{
+public:
+  // Some functions for doing things when a byte is received
+  ImuRunner(ImuRunner const &) = delete;
+  ImuRunner(ImuRunner && o);
+  ImuRunner &operator=(ImuRunner const &) = delete;
+  virtual ImuRunner &operator=(ImuRunner && o) = 0;
+};
