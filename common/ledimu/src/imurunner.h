@@ -3,6 +3,7 @@
 class ImuRunner
 {
 public:
+  ImuRunner() {}
   // Some functions for doing things when a byte is received
   ImuRunner(ImuRunner const &) = delete;
   ImuRunner(ImuRunner && o);

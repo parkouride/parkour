@@ -6,6 +6,7 @@ OBJ_DIR = $(BUILD_DIR)/objs
 
 SRC = $(wildcard ./ledimuff/*.cpp) ./main.cpp
 OBJ = $(subst ./,$(OBJ_DIR)/, $(subst .cpp,.o, $(SRC)))
+PRODUCT_OBJ = $(BUILD_DIR)/ledimu.a
 
 CFLAGS += -I $(GTEST_ROOT) -I $(GTEST_ROOT)/include -I ../src
 
@@ -19,7 +20,7 @@ gtest: $(GTEST_ROOT)/src/gtest-all.cc
 	ar -rv $(BUILD_DIR)/libgtest.a $(OBJ_DIR)/gtest-all.o
 
 tests: $(OBJ)
-	$(CC) -o $(BUILD_DIR)/tests $(BUILD_DIR)/libgtest.a $(OBJ)
+	$(CC) -o $(BUILD_DIR)/tests $(BUILD_DIR)/libgtest.a $(OBJ) $(PRODUCT_OBJ)
 
 $(OBJ_DIR)/%.o: ./%.cpp
 	mkdir -p $(@D)

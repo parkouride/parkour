@@ -9,33 +9,26 @@
 #endif // LEDIMU_FILENAME
 
 #ifdef SD_H
- #define SDFILE File
- #define SDOPENREAD(filename) SD.open(filename)
- #define SDOPENWRITE(filename) SD.open(filename, FILE_WRITE)
- #define SDOPENAPPEND(filename) SD.open(filename, FILE_WRITE)
+ #define SDFILE(name) File name
 #else // SD_H
  #ifdef SD_EMU_H 
- #include <stdio.h>
- #define SDFILE FILE*
- #define SDOPENREAD(filename) fopen(filename, "r")
- #define SDOPENWRITE(filename) fopen(filename, "w")
- #define SDOPENAPPEND(filename) fopen(filename, "a")
+ #include <iostream>
+ #include <fstream>
+ #ifdef LEDIMU_READONLY
+  #define STREAM_TYPE std::istream
+ #else
+  #define STREAM_TYPE std::iostream
+ #endif // LEDIMU_READONLY
+#define SDFILE(name) std::unique_ptr<STREAM_TYPE> name
+
  #else // SD_EMU_H
   #error "You must include a SD File library before including ledimuff.h"
  #endif // SD_EMU_H
 #endif // SD_H
 
-#ifndef LEDIMU_READONLY
-// #include "ledimu_data.h"
-typedef struct LedImuHeader LedImuHeader_t;
-typedef LedImuHeader_t* LedImuHeader_ptr;
-
+typedef struct LedImuData LedImuData_t;
 typedef struct LedImuStateAllocationEntry LedImuStateAllocationEntry_t;
-typedef LedImuStateAllocationEntry_t* LedImuStateAllocationEntry_ptr;
-
 typedef struct LedImuStateAllocationTable LedImuStateAllocationTable_t;
-typedef LedImuStateAllocationTable_t* LedIumStateAllocationTable_ptr;
-#endif // LEDIMU_READONY
 
 class ImuRunner;
 
@@ -51,12 +44,12 @@ public:
   int RunState(int state_number);
 
 #ifndef LEDIMU_READONLY
-  bool Write(LedImuHeader_t);
-  bool Write(char *filename);
+  bool Write(LedImuData_t&);
+  bool Write(const char *filename, LedImuData_t&);
 #endif // LEDIMU_READONY
 
 private:
-  SDFILE m_file;
+  SDFILE(m_file);
   std::unique_ptr<ImuRunner> m_runner;
 
 };
