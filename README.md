@@ -9,3 +9,10 @@ motion that is coming in.
 
 There is also a tool that writes the bytecode file to the SD card.  It's written in Openframeworks
 and is available in the compiler directory.
+
+bytecode documentation
+----------------------
+
++---------+-----------+-------------+
+| op code | arguments | description |
++---------+-----------+-------------+
