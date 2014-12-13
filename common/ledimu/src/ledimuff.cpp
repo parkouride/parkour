@@ -2,70 +2,16 @@
 #include "ledimuff.h"
 #include "imurunner.h"
 #include <iostream>
+#include <iomanip>
 
-#define CHECK_ERROR(x) if ((retval=x) != 0) { return retval; }
 
-LedImuFile::LedImuFile(std::unique_ptr<ImuRunner> &runner) : m_runner(std::move(runner))
+LedImuFile::LedImuFile(std::unique_ptr<ImuRunner> &runner, uint8_t pixel_count)
+    : m_runner(std::move(runner)),
+      m_pixel_count(pixel_count)
 {
 }
 
-LedImuFileError LedImuFile::Load()
-{
-    return Load(LEDIMU_FILENAME);
-}
 
-LedImuFileError LedImuFile::Load(const char *filename)
-{
-#ifdef SD_H
-#endif // SD_H
-
-#ifdef SD_EMU_H
-	std::filebuf buffer;
-	LedImuFileError retval = LedImuFileError::success;
-
-	if (!buffer.open(filename, std::ios::in | std::ios::binary))
-	{
-		return LedImuFileError::file_not_found;
-	}
-
-	m_file = std::unique_ptr<STREAM_TYPE>(new STREAM_TYPE(&buffer));
-	CHECK_ERROR(read_header());
-
-	return retval;
-
-#endif // SD_EMU_H
-}
-
-inline LedImuFileError LedImuFile::read_header()
-{
-	LedImuFileError retval;
-	
-	CHECK_ERROR(read_magic_marker(m_header.start_marker, "PARK"))
-	CHECK_ERROR(read(&m_header.state_count))
-
-	if (GetNumberStates() <= 0)
-	{
-		return LedImuFileError::no_states_specified;
-	}
-
-	CHECK_ERROR(read(&m_header.state_name_mapping_position))
-	CHECK_ERROR(read(&m_header.state_decision_position))
-	CHECK_ERROR(read_array<uint16_t>(m_header.state_position,
-		m_header.state_count));
-	CHECK_ERROR(read_magic_marker(m_header.end_marker, "HEND"))
-
-	return LedImuFileError::success;
-}
-
-template<typename T>
-LedImuFileError LedImuFile::read_array(std::unique_ptr<T[]> &buffer, int count)
-{
-	buffer.reset(new T[count]);
-	m_file->read(reinterpret_cast<char *>(buffer.get()),
-		count * sizeof(T));
-
-	return LedImuFileError::success;
-}
 
 LedImuFile::~LedImuFile()
 {
@@ -73,36 +19,45 @@ LedImuFile::~LedImuFile()
 
 int LedImuFile::RunState(int state_number)
 {
+	if (state_number < 0 || state_number > m_header.state_count)
+	{
+		return -2;
+	}
+
+	std::unique_ptr<uint8_t[]> code = get_state(state_number);
+	if (code == nullptr)
+	{
+		return -1;
+	}
+
 	return 0;
 }
 
-LedImuFileError LedImuFile::read_magic_marker(char *buffer, const char marker[4])
+std::unique_ptr<uint8_t[]> LedImuFile::get_state(int state_number)
 {
-	m_file->read(buffer, 4);
-	if (!*m_file)
+	if (!m_file->fail())
 	{
-		return LedImuFileError::invalid_file;
+		m_file->clear();
 	}
 
-	if (strncmp(buffer, marker, 4))
-	{
-		return LedImuFileError::invalid_file;
-	}
+	uint16_t file_position = m_header.state_position[state_number];
+	uint16_t state_size;
 
-	return LedImuFileError::success;
+	// Seek to beginning of state
+	m_file->seekg(file_position, m_file->beg);
+	if (!*m_file) { std::cout << "seek failed" << std::endl; return nullptr; }
+
+	// Read the length of the state
+	m_file->read(reinterpret_cast<char *>(&state_size), 2);
+	if (!*m_file) { return nullptr; }
+
+	auto retval = new uint8_t[state_size];
+	m_file->read(reinterpret_cast<char *>(retval), state_size);
+	if (!*m_file) { return nullptr; }
+
+	return std::unique_ptr<uint8_t[]>(retval);
 }
 
-template<typename T>
-LedImuFileError LedImuFile::read(T *buffer)
-{
-	m_file->read(reinterpret_cast<char *>(buffer), sizeof(T));
-	if (!*m_file)
-	{
-		return LedImuFileError::invalid_file;
-	}
-
-	return LedImuFileError::success;
-}
 
 #ifndef LEDIMU_READONLY
 #include "_ledimuff_write.cpp"

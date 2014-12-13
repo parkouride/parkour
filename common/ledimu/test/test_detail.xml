@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="0" disabled="0" errors="0" timestamp="2014-12-13T08:25:02" time="0" name="AllTests">
+  <testsuite name="LoadTest" tests="1" failures="0" disabled="0" errors="0" time="0">
+    <testcase name="invalid_magic_marker" status="run" time="0" classname="LoadTest" />
+  </testsuite>
+</testsuites>

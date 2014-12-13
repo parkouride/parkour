@@ -1,9 +1,9 @@
 include make/clang.mk
 
-SRC = src/ledimuff.cpp
+SRC = src/ledimuff.cpp src/ledimuff_load.cpp
 OBJ = $(subst src/,build/objs/, $(subst .cpp,.o, $(SRC)))
 
-CFLAGS += -DSD_EMU_H
+CFLAGS += -DSD_EMU_H -g
 
 all: library test
 
@@ -16,7 +16,7 @@ test: library
 build:
 	mkdir -p build/objs
 
-build/objs/%.o: src/%.cpp src/%.h 
+build/objs/%.o: src/%.cpp 
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:

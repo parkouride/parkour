@@ -8,23 +8,8 @@
 #define LEDIMU_FILENAME "ledimu.prog"
 #endif // LEDIMU_FILENAME
 
-#ifdef SD_H
- #define SDFILE(name) File name
-#else // SD_H
- #ifdef SD_EMU_H 
- #include <iostream>
- #include <fstream>
- #ifdef LEDIMU_READONLY
-  #define STREAM_TYPE std::istream
- #else
-  #define STREAM_TYPE std::iostream
- #endif // LEDIMU_READONLY
-#define SDFILE(name) std::unique_ptr<STREAM_TYPE> name
-
- #else // SD_EMU_H
-  #error "You must include a SD File library before including ledimuff.h"
- #endif // SD_EMU_H
-#endif // SD_H
+#include <iostream>
+#include <fstream>
 
 struct LedImuHeader;
 typedef struct LedImuData LedImuData_t;
@@ -36,7 +21,7 @@ class ImuRunner;
 class LedImuFile
 {
 public:
-  LedImuFile(std::unique_ptr<ImuRunner> & runner);
+  LedImuFile(std::unique_ptr<ImuRunner> & runner, uint8_t pixel_count);
   ~LedImuFile();
 
   LedImuFileError Load();
@@ -54,9 +39,11 @@ public:
   uint16_t GetDecisionPosition() { return m_header.state_decision_position; }
 
 private:
-  SDFILE(m_file);
+  std::unique_ptr<std::ifstream> m_file;
   std::unique_ptr<ImuRunner> m_runner;
+  int m_pixel_count;
   struct LedImuHeader m_header;
+  bool loaded = false;
 
   LedImuFileError read_header();
   LedImuFileError read_magic_marker(char *buffer, const char marker[4]);
@@ -66,4 +53,6 @@ private:
 
   template<typename T>
   LedImuFileError read_array(std::unique_ptr<T[]> &buffer, int count);
+
+  std::unique_ptr<uint8_t[]> get_state(int state_number); // Implicit move?
 };
