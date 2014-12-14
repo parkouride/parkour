@@ -1,9 +1,28 @@
+#include "imurunner.h"
 #include "ledimu_data.h"
 #include "ledimuff.h"
 #include "ledimu_error.h"
 
+#define IF_ERROR(x, y) if (!*x) { return y; }
+
 int LedImuFile::run_state(uint8_t *buffer)
 {
+	bool done = false;
+	uint8_t storage[16];
+	// Need a stack, probably global for performance?
+
+	while(!done)
+	{
+		read<uint8_t>(storage);
+		IF_ERROR(m_file, -1);
+
+		switch(storage[0]) {
+			case 0xFF:  // End of State, Done
+				m_runner->commit();
+				done = true;
+		}
+	}
+
 	return 0;
 }
 
@@ -20,5 +39,6 @@ int LedImuFile::RunState(int state_number)
 		return -1;
 	}
 
-	return run_state(code.get());
+	int retval = run_state(code.get());
+	return retval <= 0 ? state_number : retval;
 }

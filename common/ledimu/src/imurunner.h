@@ -9,4 +9,5 @@ public:
   ImuRunner(ImuRunner && o);
   ImuRunner &operator=(ImuRunner const &) = delete;
   virtual ImuRunner &operator=(ImuRunner && o) = 0;
+  virtual void commit() = 0;
 };

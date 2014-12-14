@@ -31,7 +31,7 @@ uint8_uptra LedImuFile::get_state(int state_number)
 	RET_NULL_IF_FAILED(m_file)
 
 	// Read the length of the state
-	m_file->read(reinterpret_cast<char *>(&state_size), 2);
+	read<uint16_t>(&state_size);
 	RET_NULL_IF_FAILED(m_file)
 
 	auto retval = new uint8_t[state_size];
@@ -50,7 +50,6 @@ std::unique_ptr<char[]> LedImuFile::GetStateName(int state_number)
 
 	read(&string_length);
 	while(state_number > 0 && *m_file) {
-		std::cout << m_file->tellg() << ":" << string_length << "0x" << std::hex << string_length << std::endl;
 		m_file->seekg(string_length, m_file->cur);
 		--state_number;
 		read(&string_length);
