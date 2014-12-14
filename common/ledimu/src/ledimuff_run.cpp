@@ -20,6 +20,15 @@ int LedImuFile::run_state(uint8_t *buffer)
 			case 0xFF:  // End of State, Done
 				m_runner->commit();
 				done = true;
+			case 0xFE:  // Transition STATE
+			    break;
+			case 0x00:  // NOP
+				break;
+			case 0x01:  // SetAll R G B
+				read_arguments<uint8_t>(storage, 3);
+				m_runner->set_all({storage[0], storage[1], storage[2]});
+				break;
+
 		}
 	}
 

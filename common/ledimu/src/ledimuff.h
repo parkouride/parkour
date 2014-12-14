@@ -57,6 +57,9 @@ private:
   template<typename T>
   LedImuFileError read_array(std::unique_ptr<T[]> &buffer, int count);
 
+  template<typename T>
+  LedImuFileError read_arguments(T* buffer, int count);
+
   uint8_uptra get_state(int state_number); // Implicit move?
   int run_state(uint8_t *buffer);
 };

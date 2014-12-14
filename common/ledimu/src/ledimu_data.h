@@ -20,3 +20,10 @@ struct LedImuData
 {
 	LedImuHeader* header;
 };
+
+struct Color_t
+{
+	uint8_t red;
+	uint8_t blue;
+	uint8_t green;
+};

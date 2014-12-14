@@ -5,9 +5,10 @@
 
 typedef enum LedImuFileErrorEnum
 {
+  unknown_error = -1,
   success = 0,
   file_not_found,
   invalid_file,
   no_states_specified,
-  not_enough_pixels
+  not_enough_pixels,
 } LedImuFileError;

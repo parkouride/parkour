@@ -8,16 +8,7 @@
 #include "ledimuff.h"
 #include "imurunner.h"
 
-class MockRunner : public ImuRunner
-{
-	virtual ImuRunner &operator=(ImuRunner && o ) {
-		return *this;
-	}
-
-	virtual void commit() {
-
-	}
-};
+#include "mock.h"
 
 TEST(RunTest, get_state_no_change)
 {

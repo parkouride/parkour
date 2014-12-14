@@ -8,12 +8,7 @@
 #include "ledimuff.h"
 #include "imurunner.h"
 
-class MockRunner : public ImuRunner
-{
-	virtual ImuRunner &operator=(ImuRunner && o ) {
-		return *this;
-	}
-};
+#include "mock.h"
 
 TEST(LoadTest, default_filename)
 {

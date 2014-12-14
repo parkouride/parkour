@@ -87,3 +87,16 @@ LedImuFileError LedImuFile::read_array(std::unique_ptr<T[]> &buffer, int count)
 
 	return LedImuFileError::success;
 }
+
+template<>
+LedImuFileError LedImuFile::read_arguments<uint8_t>(uint8_t* buffer, int count)
+{
+	m_file->read(reinterpret_cast<char *>(buffer), count);
+
+	if (!*m_file)
+	{
+		return LedImuFileError::unknown_error;
+	}
+
+	return LedImuFileError::success;
+}
