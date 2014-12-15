@@ -12,14 +12,14 @@ CFLAGS += -I $(GTEST_ROOT) -I $(GTEST_ROOT)/include -I ../src -g
 
 all: build run
 
-build: gtest tests
+build: tests
 	@echo "Building Tests"
 
-gtest: $(GTEST_ROOT)/src/gtest-all.cc
+$(BUILD_DIR)/libgtest.a: $(GTEST_ROOT)/src/gtest-all.cc
 	$(CC) $(CFLAGS) -pthread -c $(GTEST_ROOT)/src/gtest-all.cc -o $(OBJ_DIR)/gtest-all.o
 	ar -rv $(BUILD_DIR)/libgtest.a $(OBJ_DIR)/gtest-all.o
 
-tests: $(OBJ)
+tests: $(OBJ) $(BUILD_DIR)/libgtest.a
 	$(CC) -o $(BUILD_DIR)/tests $(BUILD_DIR)/libgtest.a $(OBJ) $(PRODUCT_OBJ)
 
 $(OBJ_DIR)/%.o: ./%.cpp
