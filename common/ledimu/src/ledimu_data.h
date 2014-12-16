@@ -23,7 +23,14 @@ struct LedImuData
 
 struct Color_t
 {
-	uint8_t red;
-	uint8_t blue;
-	uint8_t green;
+	const uint8_t red;
+	const uint8_t green;
+	const uint8_t blue;
+
+	Color_t(const uint8_t c[3])
+	  : red{c[0]}
+	  , green{c[1]}
+	  , blue{c[2]}
+	{
+	}
 };

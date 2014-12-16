@@ -8,6 +8,7 @@
 int LedImuFile::run_state(uint8_t *buffer)
 {
 	bool done = false;
+	uint8_t return_state = 0;
 	uint8_t storage[16];
 	// Need a stack, probably global for performance?
 
@@ -20,19 +21,23 @@ int LedImuFile::run_state(uint8_t *buffer)
 			case 0xFF:  // End of State, Done
 				m_runner->commit();
 				done = true;
-			case 0xFE:  // Transition STATE
+			case 0xFE:  // Transition STATE[1]
+				read(&return_state);
 			    break;
 			case 0x00:  // NOP
 				break;
-			case 0x01:  // SetAll R G B
+			case 0x01:  // SetAll R[1] G[1] B[1]
 				read_arguments<uint8_t>(storage, 3);
-				m_runner->set_all({storage[0], storage[1], storage[2]});
+				m_runner->set_all(storage);
 				break;
-
+			case 0x02:  // Delay MILLISECOND[2]
+				read_arguments<uint16_t>(reinterpret_cast<uint16_t*>(storage), 1);
+				m_runner->delay(storage[0]);
+				break;
 		}
 	}
 
-	return 0;
+	return return_state;
 }
 
 int LedImuFile::RunState(int state_number)
