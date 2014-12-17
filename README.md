@@ -6,6 +6,8 @@ parkour
 A programmable LED controller + IDE. By virtualizing the control of the leds, we can program the controller by swapping out
 sd cards or just renaming files on the card.
 
+**Why is it named parkour?** I named the project parkour because that's what I'm going to be doing while wearing the devices that I'm making.  I'm going to be light painting with my body when this system is finished.
+
 hardware
 --------
 
