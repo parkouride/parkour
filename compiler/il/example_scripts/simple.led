@@ -1,0 +1,14 @@
+%version 1
+%numleds 8
+%start foo
+%require imu
+
+states {
+  state foo {
+    setAll RGB(128, 128, 128)
+  }
+}
+
+decisions {
+
+}

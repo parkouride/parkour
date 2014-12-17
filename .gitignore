@@ -1,3 +1,7 @@
 build
 *.gch
 gtest-*
+*.pyc
+*.egg-info
+.idea
+*.iml
