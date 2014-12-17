@@ -4,38 +4,51 @@ import logging
 from pyparsing import *
 
 
-Symbol = Word(alphas, alphanums).setName("symbol")
-Number = Word('123456789', '0123456789').setName("integer")
-RGB = Group(CaselessKeyword("RGB") + "(" + Number + "," + Number + "," + Number + ")").setName("color")
-CompilerDirective = Combine("%" + Symbol).setName("directive")
-FullCompilerDirective = Group(CompilerDirective + (Number ^ Symbol))
+logger = logging.getLogger(__name__)
 
-Header = OneOrMore(FullCompilerDirective)
+Symbol = Word(alphas, alphanums).setResultsName("symbol")
+Number = Word('123456789', '0123456789').setResultsName("integer")
+RGB = Group(CaselessKeyword("RGB") + "(" + Number + "," + Number + "," + Number + ")").setResultsName("color")
+RequireDirective = Combine(Literal("%").suppress() + Keyword("require")).setResultsName("require")
+CompilerDirective = Combine(Literal("%").suppress() + Symbol).setResultsName("directive")
+DirectiveValue = (Number ^ Symbol).setResultsName("value")
+FullCompilerDirective = Group(
+    CompilerDirective +
+    DirectiveValue
+)
+FullRequireDirective = Group(
+    RequireDirective +
+    DirectiveValue
+)
+Header = OneOrMore(FullRequireDirective | FullCompilerDirective)
 
-States = CaselessKeyword("states").setName("states block")
-State = CaselessKeyword("state").setName("state")
+States = CaselessKeyword("states").setName("states block").suppress()
+State = CaselessKeyword("state").setName("state").suppress()
 Decisions = Keyword("decisions").setName("decisions block")
 StartBlock = Keyword("{").suppress()
 EndBlock = Keyword("}").suppress()
 
 # OpCodes
-SetAll = Group(CaselessKeyword("SetAll") + (RGB | CompilerDirective ))
+SetAllOpCode = CaselessKeyword("SetAll").setResultsName('opcode')
+SetAllOpCodeArguments = (RGB | CompilerDirective).setResultsName('arguments')
+SetAll = Group(SetAllOpCode + SetAllOpCodeArguments)
 
+Codes = Optional(OneOrMore(SetAll)).setResultsName('code')
 
-Codes = SetAll
-
-StateEntry = Group(State + Symbol + StartBlock + Optional(Codes) + EndBlock)
-
+StateName = Symbol.setResultsName("state_name")
+StateEntry = Group(State + StateName + StartBlock + Codes + EndBlock)
 StateBlock = Group(States + StartBlock) + OneOrMore(StateEntry) + EndBlock
 DecisionBlock = Group(Decisions + StartBlock + EndBlock)
-
 LedFile = Optional(Header) + StateBlock + DecisionBlock
-
-logger = logging.getLogger(__name__)
 
 
 class Compiler(object):
+    current_compiler = None
+
     def __init__(self, filename):
+        Compiler.current_compiler = self
+        self._directives = {}
+        self._requirements = set()
         self._source = filename
         output, _ = os.path.splitext(filename)
         self._output = "{0}.ledprog".format(output)
@@ -48,9 +61,41 @@ class Compiler(object):
             else:
                 pass  # handle strings where is really just state
 
+        logger.debug("Directives and Symbols")
+        [logger.debug("{0}=>{1}".format(k, v)) for k, v in self._directives.items()]
+
+        logger.debug("Requirements: {}".format(", ".join(self._requirements)))
+
     def _tokenize(self):
         value = LedFile.parseFile(self._source)
 
         for token in value:
-            print(token)
             yield token
+
+    @classmethod
+    def add_compiler_directive(cls, toks):
+        for tok in toks:
+            if tok.directive in cls.current_compiler._directives:
+                logger.error("Redefinition of {}".format(tok.directive))
+            cls.current_compiler._directives[tok.directive] = tok.value
+
+        return None
+
+    @classmethod
+    def add_requirement(cls, toks):
+        for tok in toks:
+            cls.current_compiler._requirements.add(tok.value)
+
+    @classmethod
+    def add_states(cls, toks):
+        for tok in toks:
+            cls.current_compiler.add_state(tok.state_name, tok.code)
+
+    def add_state(self, state_name, code):
+        logger.debug("Adding {}".format(state_name))
+        print(code)
+
+
+FullCompilerDirective.addParseAction(Compiler.add_compiler_directive)
+FullRequireDirective.addParseAction(Compiler.add_requirement)
+StateEntry.addParseAction(Compiler.add_states)
