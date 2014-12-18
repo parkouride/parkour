@@ -2,15 +2,18 @@
 #include "ledimu_data.h"
 #include "ledimuff.h"
 #include "ledimu_error.h"
+#include "stack.h"
 
 #define IF_ERROR(x, y) if (!*x) { return y; }
+
+
 
 int LedImuFile::run_state(uint8_t *buffer)
 {
 	bool done = false;
 	uint8_t return_state = 0;
 	uint8_t storage[16];
-	// Need a stack, probably global for performance?
+	Stack stack;
 
 	while(!done)
 	{
@@ -31,9 +34,17 @@ int LedImuFile::run_state(uint8_t *buffer)
 				m_runner->set_all(storage);
 				break;
 			case 0x02:  // Delay MILLISECOND[2]
-				read_arguments<uint16_t>(reinterpret_cast<uint16_t*>(storage), 1);
+				*storage = stack.pop<uint16_t>();
 				m_runner->delay(storage[0]);
 				break;
+			case 0x03: // PushB VALUE[1]
+				read_arguments<uint8_t>(storage, 1);
+				stack.push<uint8_t>(storage[0]);
+				break;
+
+			case 0x13:  // Skip If
+				break;
+
 		}
 	}
 
