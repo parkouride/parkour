@@ -1,6 +1,5 @@
 import os.path
 import logging
-import re
 
 from pyparsing import *
 
@@ -12,36 +11,8 @@ logger = logging.getLogger(__name__)
 
 LedFile = Forward()
 
-class _StateType(object):
-    def __init__(self, type_name, value):
-        self.type = type_name
-        self._value = value[0]
-        self._keys = self._attach_value()
-
-    def _attach_value(self):
-        setattr(self, "value", self._value)
-        return ["value"]
-
-    def keys(self):
-        return self._keys
-
-    def __repr__(self):
-        pairs = list(("=".join((k, str(getattr(self, k)))) for k in self._keys))
-        params = " ".join(pairs)
-
-        return "<{}: {}>".format(self.type, params)
 
 
-class _RGBType(_StateType):
-    def __init__(self, value):
-        super(_RGBType, self).__init__("RGB", value)
-
-    def _attach_value(self):
-        value = self._value
-        setattr(self, 'red', int(value[0], 16))
-        setattr(self, 'green', int(value[1], 16))
-        setattr(self, 'blue', int(value[2], 16))
-        return ["red", "green", "blue"]
 
 
 class Compiler(object):
@@ -58,7 +29,7 @@ class Compiler(object):
 
     def compile(self):
         logger.info("{0} -> {1}".format(self._source, self._output))
-        list(self._tokenize())
+        [logger.debug("TOKEN: {}".format(x)) for x in self._tokenize()]
 
         logger.debug("Directives and Symbols")
         [logger.debug("{0}=>{1}".format(k, v)) for k, v in self._directives.items()]
@@ -108,9 +79,6 @@ class Compiler(object):
 def debug(tok):
     logger.debug("ParseAction:{}".format(tok))
 
-# Attach actions to Expression Objects
-Symbol.addParseAction(lambda tok: _StateType("symbol", tok))
-RGB.addParseAction(lambda tok: _RGBType(tok))
 
 RequireDirective = Combine(Literal("%").suppress() + Keyword("require")).setResultsName("require")
 CompilerDirective = Combine(Literal("%").suppress() + Symbol).setResultsName("directive")
@@ -123,7 +91,7 @@ FullRequireDirective = Group(
     RequireDirective +
     DirectiveValue
 )
-Header = OneOrMore(FullRequireDirective | FullCompilerDirective)
+Header = OneOrMore(FullRequireDirective ^ FullCompilerDirective)
 
 States = CaselessKeyword("states").setName("states block").suppress()
 State = CaselessKeyword("state").setName("state").suppress()
@@ -133,10 +101,11 @@ EndBlock = Keyword("}").suppress()
 
 # OpCodes
 SetAllOpCode = CaselessKeyword("SetAll").setResultsName('opcode')
-SetAllOpCodeArguments = (RGB | CompilerDirective).setResultsName('arguments')
+SetAllOpCodeArguments = (RGB ^ CompilerDirective).setResultsName('arguments')
 SetAll = Group(SetAllOpCode + SetAllOpCodeArguments)
 
-Codes = Optional(OneOrMore(SetAll)).setResultsName('code')
+Codes = Forward().setResultsName('code')
+Codes << SetAll ^ Codes ^ Empty()
 
 StateName = Symbol.setResultsName("state_name")
 StateEntry = Group(State + StateName + StartBlock + Codes + EndBlock)

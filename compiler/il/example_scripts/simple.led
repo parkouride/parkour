@@ -5,7 +5,7 @@
 
 states {
   state foo {
-    setAll #808080
+    setall #ffffff
   }
 }
 

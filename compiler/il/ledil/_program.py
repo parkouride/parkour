@@ -1,4 +1,7 @@
+import logging
 import re
+
+logger = logging.getLogger(__name__)
 
 from _bytecode import ByteCodeGenerator as bcg
 
@@ -19,9 +22,12 @@ class _StateProgram(object):
         self._buffer = []
 
     def add_line(self, tokens):
-        func = functionize(self, tokens.opcode)
-        if callable(func):
-            self._buffer.extend(func(tokens.arguments))
+        try:
+            func = functionize(self, tokens.opcode)
+            if callable(func):
+                self._buffer.extend(func(tokens.arguments))
+        except:
+            logger.error("Unable to add line", exc_info=True)
 
     def _add_set_all(self, arguments):
         if arguments.type == "RGB":
