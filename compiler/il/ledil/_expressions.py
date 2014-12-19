@@ -44,7 +44,9 @@ Symbol = pp.Word(pp.alphas, pp.alphanums) \
     .setResultsName("symbol") \
     .addParseAction(lambda tok: _StateType("symbol", tok))
 
-Number = pp.Word('123456789', '0123456789').setResultsName("integer")
+Number = pp.Word('123456789', '0123456789').setResultsName("integer").addParseAction(lambda tok: _StateType("integer", tok))
+DurationMarker = (pp.CaselessKeyword("ms") ^ pp.CaselessKeyword('s')).setResultsName("units")
+Duration = pp.Group(Number + DurationMarker).addParseAction(lambda tok: _StateType("duration", tok))
 Byte = pp.Word('0123456789abcdef', exact=2).setResultsName("byte")
 RGB_EXPRESSION = pp.Group(
     pp.CaselessKeyword("RGB").suppress() +

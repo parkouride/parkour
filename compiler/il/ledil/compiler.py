@@ -17,6 +17,7 @@ LedFile = Forward()
 
 class Compiler(object):
     current_compiler = None
+    HEADER_STATIC_SIZE = 18
 
     def __init__(self, filename):
         Compiler.current_compiler = self
@@ -35,6 +36,39 @@ class Compiler(object):
         [logger.debug("{0}=>{1}".format(k, v)) for k, v in self._directives.items()]
 
         logger.debug("Requirements: {}".format(", ".join((str(x) for x in self._requirements))))
+        logger.debug("States: {}".format(", ".join(self._states.keys())))
+
+        state_count = len(self._states)
+
+        header_size = self.HEADER_STATIC_SIZE + 2 * state_count
+        logger.debug("Header Size = {}".format(header_size))
+
+        # Calculate State offsets
+        offset = header_size
+        if 'start' in self._directives:
+            start_state = self._directives['start'].value
+            logger.debug("Start State: {} at offset {}".format(start_state, offset))
+            state = self._states[start_state]
+            state.offset = offset
+            offset += len(state)
+        else:
+            start_state = None
+
+        for state_name, prog in self._states.items():
+            if state_name == start_state:
+                continue
+            logger.debug("Start {} at offset {}".format(state_name, offset))
+            prog.offset = offset
+            offset += len(prog)
+
+        # Calculate Decision offset - TODO
+        length_of_state_name_table = sum((
+            len(x)+1 for x in self._states.keys()
+        ))
+        logger.debug("State Name Table Length: {}".format(length_of_state_name_table))
+        logger.debug("Total File Length: {} bytes".format(
+            offset + length_of_state_name_table
+        ))
 
     def _tokenize(self):
         value = LedFile.parseFile(self._source)
@@ -82,7 +116,7 @@ def debug(tok):
 
 RequireDirective = Combine(Literal("%").suppress() + Keyword("require")).setResultsName("require")
 CompilerDirective = Combine(Literal("%").suppress() + Symbol).setResultsName("directive")
-DirectiveValue = (Number ^ Symbol).setResultsName("value")
+DirectiveValue = (Number ^ Symbol ^ Duration).setResultsName("value")
 FullCompilerDirective = Group(
     CompilerDirective +
     DirectiveValue
@@ -104,8 +138,11 @@ SetAllOpCode = CaselessKeyword("SetAll").setResultsName('opcode')
 SetAllOpCodeArguments = (RGB ^ CompilerDirective).setResultsName('arguments')
 SetAll = Group(SetAllOpCode + SetAllOpCodeArguments)
 
-Codes = Forward().setResultsName('code')
-Codes << SetAll ^ Codes ^ Empty()
+DelayOpCode = CaselessKeyword("Delay").setResultsName('opcode')
+DelayOpCodeArguments = (Duration ^ CompilerDirective).setResultsName('arguments')
+Delay = Group(DelayOpCode + DelayOpCodeArguments)
+
+Codes = OneOrMore(SetAll ^ Delay).setResultsName('code')
 
 StateName = Symbol.setResultsName("state_name")
 StateEntry = Group(State + StateName + StartBlock + Codes + EndBlock)

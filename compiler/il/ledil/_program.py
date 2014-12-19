@@ -17,9 +17,11 @@ def functionize(obj, opcode, default_=None):
 
     return getattr(obj, func_name, default_)
 
+
 class _StateProgram(object):
     def __init__(self):
         self._buffer = []
+        self._offset = -1
 
     def add_line(self, tokens):
         try:
@@ -27,7 +29,7 @@ class _StateProgram(object):
             if callable(func):
                 self._buffer.extend(func(tokens.arguments))
         except:
-            logger.error("Unable to add line", exc_info=True)
+            logger.error("Unable to add line: {}".format(tokens), exc_info=True)
 
     def _add_set_all(self, arguments):
         if arguments.type == "RGB":
@@ -37,3 +39,31 @@ class _StateProgram(object):
             )
         else:
             return ()
+
+    def _add_delay(self, arguments):
+        if arguments.type == "duration":
+            duration = arguments.value
+            value = duration.integer.value
+            units = duration.units
+
+            if units == "s":
+                value *= 1000
+
+            bcg.delay()
+
+        return ()
+
+    def write(self, stream):
+        for buf in self._buffer:
+            stream.write(buf)
+
+    def __len__(self):
+        return sum((len(x) for x in self._buffer))
+
+    @property
+    def offset(self):
+        return self._offset
+
+    @offset.setter
+    def offset(self, value):
+        self._offset = value
