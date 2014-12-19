@@ -31,25 +31,23 @@ class _StateProgram(object):
         except:
             logger.error("Unable to add line: {}".format(tokens), exc_info=True)
 
-    def _add_set_all(self, arguments):
+    @staticmethod
+    def _add_set_all(arguments):
         if arguments.type == "RGB":
-            return (
-                bcg.set_all(),
-                bcg.color_type(arguments.red, arguments.green, arguments.blue)
-            )
+            return [bcg.set_all(arguments.red, arguments.green, arguments.blue)]
         else:
             return ()
 
-    def _add_delay(self, arguments):
+    @staticmethod
+    def _add_delay(arguments):
         if arguments.type == "duration":
             duration = arguments.value
-            value = duration.integer.value
+            value = int(duration.integer.value)
             units = duration.units
 
             if units == "s":
                 value *= 1000
-
-            bcg.delay()
+            bcg.delay(value)
 
         return ()
 
