@@ -1,3 +1,4 @@
+import os
 import os.path
 import logging
 
@@ -5,14 +6,12 @@ from pyparsing import *
 
 from ledil._expressions import *
 from ledil._program import *
+from ledil._bytecode import ByteCodeGenerator as bcg
 
 
 logger = logging.getLogger(__name__)
 
 LedFile = Forward()
-
-
-
 
 
 class Compiler(object):
@@ -28,23 +27,12 @@ class Compiler(object):
         output, _ = os.path.splitext(filename)
         self._output = "{0}.ledprog".format(output)
 
-    def compile(self):
-        logger.info("{0} -> {1}".format(self._source, self._output))
-        [logger.debug("TOKEN: {}".format(x)) for x in self._tokenize()]
-
-        logger.debug("Directives and Symbols")
-        [logger.debug("{0}=>{1}".format(k, v)) for k, v in self._directives.items()]
-
-        logger.debug("Requirements: {}".format(", ".join((str(x) for x in self._requirements))))
-        logger.debug("States: {}".format(", ".join(self._states.keys())))
-
-        state_count = len(self._states)
-
+    def _calculate_header_size(self, state_count):
         header_size = self.HEADER_STATIC_SIZE + 2 * state_count
         logger.debug("Header Size = {}".format(header_size))
+        return header_size
 
-        # Calculate State offsets
-        offset = header_size
+    def _get_start_state(self, offset):
         if 'start' in self._directives:
             start_state = self._directives['start'].value
             logger.debug("Start State: {} at offset {}".format(start_state, offset))
@@ -53,7 +41,15 @@ class Compiler(object):
             offset += len(state)
         else:
             start_state = None
+        return offset, start_state
 
+    def _dump_debug_info(self):
+        logger.debug("Directives and Symbols")
+        [logger.debug("{0}=>{1}".format(k, v)) for k, v in self._directives.items()]
+        logger.debug("Requirements: {}".format(", ".join((str(x) for x in self._requirements))))
+        logger.debug("States: {}".format(", ".join(self._states.keys())))
+
+    def _calculate_state_offsets(self, offset, start_state):
         for state_name, prog in self._states.items():
             if state_name == start_state:
                 continue
@@ -61,14 +57,52 @@ class Compiler(object):
             prog.offset = offset
             offset += len(prog)
 
+        return offset
+
+    def compile(self):
+        logger.info("{0} -> {1}".format(self._source, self._output))
+        list(self._tokenize())
+
+        self._dump_debug_info()
+
+        state_count = len(self._states)
+        header_size = self._calculate_header_size(state_count)
+        offset = header_size
+        offset, start_state = self._get_start_state(offset)
+        offset = self._calculate_state_offsets(offset, start_state)
+
         # Calculate Decision offset - TODO
         length_of_state_name_table = sum((
-            len(x)+1 for x in self._states.keys()
+            len(x) + 1 for x in self._states.keys()
         ))
-        logger.debug("State Name Table Length: {}".format(length_of_state_name_table))
-        logger.debug("Total File Length: {} bytes".format(
+
+        logger.debug("Total Expected File Length: {} bytes".format(
             offset + length_of_state_name_table
         ))
+
+        header_arguments = {
+            'states': self._states,
+            'requirements': list(self._requirements),
+            'decision_offset': 0,  # TODO: Implement Decision Table
+            'debug_offset': offset,
+        }
+        if 'version' in self._directives:
+            header_arguments['version'] = int(self._directives['version'].value)
+
+        if 'numleds' in self._directives:
+            header_arguments['pixel_count'] = int(self._directives['numleds'].value)
+
+        order_state_keys = sorted(self._states.keys(), key=lambda x: self._states[x].offset)
+        with open(self._output, "wb") as f:
+            f.write(bcg.header(**header_arguments))
+            for state_name in order_state_keys:
+                self._states[state_name].write(f)
+            for state_name in order_state_keys:
+                data = bcg.str(state_name)
+                f.write(data)
+
+        final_size = os.stat(self._output).st_size
+        logger.info("Final File Output: {0} bytes".format(final_size))
 
     def _tokenize(self):
         value = LedFile.parseFile(self._source)

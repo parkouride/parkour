@@ -5,3 +5,4 @@ gtest-*
 *.egg-info
 .idea
 *.iml
+*.ledprog

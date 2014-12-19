@@ -1,6 +1,6 @@
 %version 1
-%numleds 8
-%start foo
+%numleds 4
+%start bar
 %require accel
 %require gyro
 
