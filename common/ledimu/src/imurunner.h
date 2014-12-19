@@ -16,7 +16,7 @@ public:
   virtual ImuRunner &operator=(ImuRunner && o) = 0;
   virtual void commit() = 0;
   virtual void set_pixel(const uint8_t position, const Color& color) = 0;
-  virtual void delay(const uint16_t milliseconds);
+  virtual void delay(const uint16_t milliseconds) = 0;
   virtual void set_all(const Color& color);
 
   virtual ~ImuRunner() {};

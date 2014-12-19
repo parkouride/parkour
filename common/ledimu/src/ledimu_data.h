@@ -34,3 +34,5 @@ struct Color_t
 	{
 	}
 };
+
+typedef struct Color_t Color;

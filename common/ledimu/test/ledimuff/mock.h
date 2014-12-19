@@ -19,4 +19,8 @@ public:
 	virtual void set_pixel(const uint8_t pixel, const Color& color) {
 
 	}
+
+	virtual void delay(const uint16_t milliseconds) {
+		
+	}
 };
