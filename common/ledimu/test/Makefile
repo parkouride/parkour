@@ -1,7 +1,7 @@
 include ../make/clang.mk
 
 GTEST_ROOT = ../../gtest-1.7.0
-BUILD_DIR = ../build
+BUILD_DIR = ../../../build
 OBJ_DIR = $(BUILD_DIR)/objs
 
 SRC = $(wildcard ./ledimuff/*.cpp) ./main.cpp

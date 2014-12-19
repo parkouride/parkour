@@ -1,23 +1,29 @@
 include make/clang.mk
 
+BUILD_DIR = ../../build
+OBJ_DIR = $(BUILD_DIR)/objs
 SRC = $(wildcard src/[a-zA-Z]*.cpp)
-OBJ = $(subst src/,build/objs/, $(subst .cpp,.o, $(SRC)))
+OBJ = $(subst src/,$(OBJ_DIR)/, $(subst .cpp,.o, $(SRC)))
+TARGET = $(BUILD_DIR)/ledimu.a
 
 CFLAGS += -DSD_EMU_H -g
 
-all: library test
+all: $(TARGET) test
 
-library: build $(OBJ)
-	ar rcs build/ledimu.a $(OBJ)
+$(TARGET): $(OBJ_DIR) $(BUILD_DIR) $(OBJ)
+	ar rcs $(TARGET) $(OBJ)
 
-test: library
+test: $(TARGET)
 	(cd test && make)
 
-build:
-	mkdir -p build/objs
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
 
-build/objs/%.o: src/%.cpp 
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+$(OBJ_DIR)/%.o: src/%.cpp 
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf build *.gch
+	rm -rf $(BUILD_DIR) *.gch
