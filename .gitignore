@@ -7,4 +7,5 @@ gtest-*
 *.iml
 *.ledprog
 *.app
+*.a
 obj
