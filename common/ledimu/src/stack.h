@@ -64,7 +64,7 @@ private:
 	std::unique_ptr<Color> m_value;
 };
 
-class Stack : public std::stack<std::unique_ptr<StackEntry>>
+class Stack : public std::stack<std::unique_ptr<StackEntry> >
 {
 
 };
