@@ -6,3 +6,5 @@ gtest-*
 .idea
 *.iml
 *.ledprog
+*.app
+obj
