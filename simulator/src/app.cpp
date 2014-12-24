@@ -25,14 +25,20 @@ void SimulatorApp::mouseDrag( MouseEvent event )
 
 void SimulatorApp::keyDown( KeyEvent event )
 {
-	if (event.getChar() == 'f') {
-		setFullScreen(!isFullScreen());
+	switch(event.getChar())
+	{
+		case 'f':
+			setFullScreen(!isFullScreen());
+			break;
+		case 27: // Escape
+			quit();
 	}
 }
 
 void SimulatorApp::draw()
 {
 	gl::clear( Color( 0.3f, 0.3f, 0.3f) );
+	gl::drawSolidCircle({10, 10}, 10.0f);
 }
 
 CINDER_APP_BASIC( SimulatorApp, RendererGl );
