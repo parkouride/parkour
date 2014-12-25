@@ -32,6 +32,9 @@ public:
 void SimulatorApp::setup()
 {
 	auto vm_program = getOpenFilePath("", extensions);
+	if (vm_program.empty()) {
+		quit();
+	}
 	int count = ledvm::LedImuFile::RequiredPixelCountFor(vm_program.c_str());
 	m_runner.reset(static_cast<ledvm::ImuRunner*>(new SimulationRunner(count)));
 	m_file.reset(new ledvm::LedImuFile(m_runner, count));

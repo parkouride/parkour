@@ -8,6 +8,30 @@
 
 using namespace ledvm;
 
+void LedImuFile::push(uint8_t typecode_i, Stack &stack, uint8_t *storage) {
+	std::unique_ptr<StackEntry> entry;
+	TypeCodes typecode = static_cast<TypeCodes>(typecode_i);
+	switch(typecode) {
+		case TypeCodes::BYTE:
+			read<uint8_t>(storage);
+			entry = create_stack_entry<uint8_t>(typecode, storage[0]);
+			stack.push(std::move(entry));
+			break;
+		case TypeCodes::SHORT:
+			// read<uint16_t>(storage);
+			// entry = create_stack_entry<uint16_t>(typecode,
+			// 	(reinterpret_cast<uint16_t*>(storage))[0]);
+			// stack.push(entry);
+			break;
+		case TypeCodes::COLOR:
+			break;
+		case TypeCodes::UNKNOWN:
+		default:
+			// TODO: Error Handling
+			break;
+	}
+}
+
 int LedImuFile::run_state(uint8_t *buffer)
 {
 	bool done = false;
@@ -21,9 +45,17 @@ int LedImuFile::run_state(uint8_t *buffer)
 		IF_ERROR(m_file, -1);
 
 		switch(storage[0]) {
+			case 0x00: break; // NOP
+
+			case 0x01: // PUSH
+				read<uint8_t>(&storage[1]); // Typecode
+				push(storage[1], stack, storage);
+				break;
+
 			case 0xFF:  // End of State, Done
 				m_runner->commit();
 				done = true;
+				break;
 		}
 	}
 

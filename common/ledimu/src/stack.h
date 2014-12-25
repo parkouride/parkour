@@ -66,6 +66,26 @@ private:
 	std::unique_ptr<Color> m_value;
 };
 
+template<typename T>
+std::unique_ptr<StackEntry> create_stack_entry(TypeCodes typecode, T value) {
+	switch(typecode) {
+		case TypeCodes::BYTE:
+			return std::unique_ptr<StackEntry>(
+				static_cast<StackEntry *>(new ByteEntry(static_cast<uint8_t>(value)))
+				);
+			break;
+		case TypeCodes::SHORT:
+			break;
+		case TypeCodes::COLOR:
+			break;
+		case TypeCodes::UNKNOWN:
+		default:
+			break;
+	}
+
+	return nullptr;
+}
+
 class Stack : public std::stack<std::unique_ptr<StackEntry> >
 {
 

@@ -15,6 +15,7 @@
 #include "ledimu_data.h"
 #include "ledimu_error.h"
 #include "imurunner.h"
+#include "stack.h"
 
 namespace ledvm {
 
@@ -63,6 +64,8 @@ private:
 
   uint8_uptra get_state(int state_number); // Implicit move?
   int run_state(uint8_t *buffer);
+
+  void push(uint8_t typecode, Stack &stack, uint8_t *storage);
 };
 
 } // namespace ledvm

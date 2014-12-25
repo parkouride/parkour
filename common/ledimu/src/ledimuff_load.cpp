@@ -120,3 +120,5 @@ LedImuFileError LedImuFile::read_arguments(T* buffer, int count)
 
 template LedImuFileError LedImuFile::read_arguments<uint8_t>(uint8_t* buffer, int count);
 template LedImuFileError LedImuFile::read_arguments<uint16_t>(uint16_t* buffer, int count);
+template LedImuFileError LedImuFile::read<uint8_t>(uint8_t* buffer);
+template LedImuFileError LedImuFile::read<uint16_t>(uint16_t* buffer);
