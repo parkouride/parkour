@@ -1,7 +1,12 @@
 #include <memory>
+#include <vector>
 
 #include "cinder/app/AppBasic.h"
 #include "cinder/Color.h"
+
+#include "ledimuff.h"
+#include "led.h"
+#include "simrun.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -11,25 +16,8 @@ constexpr float led_size = 10.0f;
 constexpr float led_spacing = 15.0f;
 constexpr float step = led_size + led_spacing;
 
-class Led {
-public:
-	Led() : m_color{new Color8u(0, 0, 0)} { }
-	~Led() {}
-
-	void draw(float position) {
-		// Expects matrix to be applied
-		gl::SaveColorState colorState;
-
-		gl::color(*m_color);
-		gl::drawSolidCircle({position,0}, 10.0f);
-	}
-
-	void set_color(unique_ptr<Color8u> color) {
-		m_color = move(color);
-	}
-
-private:
-	unique_ptr<Color8u> m_color;
+const vector<string> extensions {
+	"ledprog"
 };
 
 class SimulatorApp : public AppBasic {
@@ -41,11 +29,14 @@ public:
      void keyDown( KeyEvent event );
  private:
  	unique_ptr<Led[]> m_leds;
- 	int m_led_count = 3;
+ 	int m_led_count;
 };
 
 void SimulatorApp::setup()
 {
+	auto vm_program = getOpenFilePath("", extensions);
+	m_led_count = ledvm::LedImuFile::RequiredPixelCountFor(vm_program.c_str());
+
 	// TODO: Load VM, set initial state, determine number of leds
 	// TODO: Determine how to show a file dialog
 	m_leds.reset(new Led[m_led_count]);
@@ -64,6 +55,7 @@ void SimulatorApp::keyDown( KeyEvent event )
 			setFullScreen(!isFullScreen());
 			break;
 		case 27: // Escape
+		case 'q':
 			quit();
 	}
 }

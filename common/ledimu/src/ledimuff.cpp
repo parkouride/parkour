@@ -6,6 +6,7 @@
 
 #define RET_NULL_IF_FAILED(x) if (!*x) { return nullptr; }
 
+using namespace ledvm;
 
 LedImuFile::LedImuFile(std::unique_ptr<ImuRunner> &runner, uint8_t pixel_count)
     : m_runner(std::move(runner)),
@@ -64,8 +65,3 @@ std::unique_ptr<char[]> LedImuFile::GetStateName(int state_number)
 
 	return std::unique_ptr<char[]>(retval);
 }
-
-
-#ifndef LEDIMU_READONLY
-#include "_ledimuff_write.cpp"
-#endif // LEDIMU_READONLY

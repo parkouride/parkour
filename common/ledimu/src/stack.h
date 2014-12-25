@@ -3,7 +3,9 @@
 #include <memory>
 #include "ledimu_data.h"
 
-#define STACK_SIZE 32;
+#define STACK_SIZE 32
+
+namespace ledvm {
 
 typedef enum {
 	UNKNOWN = 0xFF,
@@ -68,3 +70,5 @@ class Stack : public std::stack<std::unique_ptr<StackEntry> >
 {
 
 };
+
+} // namespace ledvm

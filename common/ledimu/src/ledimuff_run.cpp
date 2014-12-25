@@ -6,7 +6,7 @@
 
 #define IF_ERROR(x, y) if (!*x) { return y; }
 
-
+using namespace ledvm;
 
 int LedImuFile::run_state(uint8_t *buffer)
 {

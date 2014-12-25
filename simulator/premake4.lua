@@ -6,7 +6,8 @@
              "/Users/rhay/code/cinder/latest/lib/macosx"
            }
    includedirs { "/Users/rhay/code/cinder/latest/include",
-   "/users/rhay/code/cinder/latest/boost"
+   "/users/rhay/code/cinder/latest/boost",
+   "../common/ledimu/src",
    }
    links { "Cocoa.framework", "OpenGL.framework",
            "CoreAudio.framework", "Carbon.framework",

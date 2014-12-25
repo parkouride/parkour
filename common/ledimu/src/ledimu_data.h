@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <memory>
 
+namespace ledvm {
+
 struct LedImuHeader
 {
 	char start_marker[4];
@@ -36,3 +38,5 @@ struct Color_t
 };
 
 typedef struct Color_t Color;
+
+} // namespace ledvm

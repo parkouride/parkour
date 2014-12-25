@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+namespace ledvm {
+
 struct Color_t;
 typedef struct Color_t Color; 
 
@@ -20,6 +22,8 @@ public:
   virtual void set_all(const Color& color);
 
   virtual ~ImuRunner() {};
-private:
+protected:
   uint8_t m_pixel_count;
 };
+
+} // namespace ledvm
