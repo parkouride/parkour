@@ -27,7 +27,7 @@ using uint8_uptra = std::unique_ptr<uint8_t[]>;
 class LedImuFile
 {
 public:
-  LedImuFile(std::unique_ptr<ImuRunner> & runner, uint8_t pixel_count);
+  LedImuFile(std::shared_ptr<ImuRunner> & runner, uint8_t pixel_count);
   ~LedImuFile();
 
   LedImuFileError Load();
@@ -44,7 +44,7 @@ public:
 
 private:
   std::unique_ptr<std::ifstream> m_file;
-  std::unique_ptr<ImuRunner> m_runner;
+  std::shared_ptr<ImuRunner> m_runner;
   int m_pixel_count;
   struct LedImuHeader m_header;
   bool loaded = false;

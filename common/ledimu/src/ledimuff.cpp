@@ -8,8 +8,8 @@
 
 using namespace ledvm;
 
-LedImuFile::LedImuFile(std::unique_ptr<ImuRunner> &runner, uint8_t pixel_count)
-    : m_runner(std::move(runner)),
+LedImuFile::LedImuFile(std::shared_ptr<ImuRunner> &runner, uint8_t pixel_count)
+    : m_runner(runner),
       m_pixel_count(pixel_count)
 {
 }

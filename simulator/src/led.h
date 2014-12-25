@@ -4,6 +4,9 @@
 #include "cinder/gl/gl.h"
 #include "cinder/Color.h"
 
+constexpr float led_size = 10.0f;
+constexpr float led_spacing = 15.0f;
+constexpr float step = led_size + led_spacing;
 
 class Led {
 public:
