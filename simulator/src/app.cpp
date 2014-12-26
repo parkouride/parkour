@@ -67,7 +67,6 @@ void SimulatorApp::update()
 	if (next_state >= 0) {
 		m_state = next_state;
 	}
-	std::cout << "State: " << m_state << std::endl;
 }
 
 void SimulatorApp::draw()

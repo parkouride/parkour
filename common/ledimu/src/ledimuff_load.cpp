@@ -59,6 +59,8 @@ inline LedImuFileError LedImuFile::read_header()
 		return LedImuFileError::not_enough_pixels;
 	}
 
+	CHECK_ERROR(m_file->ReadShort(&m_header.vm_version))
+	CHECK_ERROR(m_file->ReadShort(&m_header.requirements))
 	CHECK_ERROR(m_file->ReadShort(&m_header.state_name_mapping_position))
 	CHECK_ERROR(m_file->ReadShort(&m_header.state_decision_position))
 	CHECK_ERROR(m_file->ReadShortArray(m_header.state_position.get(), m_header.state_count))

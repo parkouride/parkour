@@ -20,11 +20,11 @@ public:
 	StackEntry() : m_type(TypeCodes::UNKNOWN) { }
 	StackEntry(TypeCodes type) : m_type(type) { }
 	virtual ~StackEntry() {}
-	TypeCodes get_type() { return m_type; }
+	TypeCodes GetType() { return m_type; }
 
-	uint8_t getByte() { return 0; /* Error */ }
-	uint16_t getShort() { return 0; /* Error */ }
-	std::unique_ptr<Color> getColor() { return nullptr; }
+	virtual uint8_t GetByte() { return 0; /* Error */ }
+	virtual uint16_t GetShort() { return 0; /* Error */ }
+	virtual std::unique_ptr<Color> GetColor() { return nullptr; }
 
 private:
 	TypeCodes m_type;
@@ -36,7 +36,7 @@ public:
 	ByteEntry() : StackEntry(TypeCodes::BYTE), m_value(0) {}
 	ByteEntry(uint8_t value) : StackEntry(TypeCodes::BYTE), m_value(value) {}
 
-	uint8_t getByte() { return m_value; }
+	uint8_t GetByte() { return m_value; }
 
 private:
 	uint8_t m_value;
@@ -48,7 +48,7 @@ public:
 	ShortEntry() : StackEntry(TypeCodes::SHORT), m_value(0) {}
 	ShortEntry(uint16_t value) : StackEntry(TypeCodes::SHORT), m_value(value) {}
 
-	uint16_t getShort() { return m_value; }
+	uint16_t GetShort() { return m_value; }
 
 private:
 	uint16_t m_value;
@@ -60,7 +60,7 @@ public:
 	ColorEntry() : StackEntry(TypeCodes::COLOR), m_value(nullptr) {}
 	ColorEntry(std::unique_ptr<Color> value) : StackEntry(TypeCodes::COLOR), m_value(std::move(value)) {}
 
-	std::unique_ptr<Color> getColor() { return std::move(m_value); }
+	std::unique_ptr<Color> GetColor() { return std::move(m_value); }
 
 private:
 	std::unique_ptr<Color> m_value;
@@ -75,6 +75,9 @@ std::unique_ptr<StackEntry> create_stack_entry(TypeCodes typecode, T value) {
 				);
 			break;
 		case TypeCodes::SHORT:
+			return std::unique_ptr<StackEntry>(
+				static_cast<StackEntry *>(new ShortEntry(static_cast<uint16_t>(value)))
+				);
 			break;
 		case TypeCodes::COLOR:
 			break;

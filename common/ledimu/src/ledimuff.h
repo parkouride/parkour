@@ -54,8 +54,8 @@ private:
   LedImuFileError read_header();
   LedImuFileError read_magic_marker(char *buffer, const char marker[4]);
 
-  uint8_uptra get_state(int state_number); // Implicit move?
-  int run_state(uint8_t *buffer);
+  bool goto_state(int state_number); // Implicit move?
+  int run_state();
 
   void push(uint8_t typecode, Stack &stack, uint8_t *storage);
 };

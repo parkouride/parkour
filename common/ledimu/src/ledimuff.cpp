@@ -6,6 +6,7 @@
 
 #define RET_NULL_IF_FAILED(x) if (!x->WasSuccess()) { return nullptr; }
 #define RET_NULL_IF_FAIL(x) if (!(x)) { return nullptr; }
+#define RET_IF_FAILED(x, y) if (!(x)) { return y; }
 
 using namespace ledvm;
 
@@ -23,21 +24,16 @@ LedImuFile::~LedImuFile()
 
 
 
-uint8_uptra LedImuFile::get_state(int state_number)
+bool LedImuFile::goto_state(int state_number)
 {
 	uint16_t file_position = m_header.state_position[state_number];
 	uint16_t state_size;
 
 	// Seek to beginning of state
-	RET_NULL_IF_FAIL(m_file->Seek(file_position))
+	std::cout << 1 << std::endl;
+	RET_IF_FAILED(m_file->Seek(file_position), false)
 
-	// Read the length of the state
-	RET_NULL_IF_FAIL(m_file->ReadShort(&state_size))
-
-	auto retval = new uint8_t[state_size];
-	RET_NULL_IF_FAIL(m_file->ReadByteArray(retval, state_size))
-
-	return uint8_uptra(retval);
+	return true;
 }
 
 std::unique_ptr<char[]> LedImuFile::GetStateName(int state_number)

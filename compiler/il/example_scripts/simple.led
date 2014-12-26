@@ -10,8 +10,7 @@ states {
     delay 100ms
   }
   state bar {
-    setall #ff0000
-    delay 1s
+  	delay 1000ms
   }
 }
 

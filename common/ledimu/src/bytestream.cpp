@@ -1,3 +1,4 @@
+#include <iostream>
 #include "bytestream.h"
 
 ByteStream::ByteStream(const char *filename) 
@@ -50,7 +51,9 @@ bool ByteStream::ReadShort(uint16_t *storage)
 
 bool ByteStream::ReadByteArray(uint8_t *storage, int count)
 {
+	std::cout << m_stream->tellg() << " -(" << count;
 	read<uint8_t>(storage, count);
+	std::cout << ")-> " << m_stream->tellg() << std::endl;
 
 	return WasSuccess();
 }
@@ -72,6 +75,7 @@ bool ByteStream::ReadCharArray(char *str, int len)
 
 bool ByteStream::Seek(int position)
 {
+	m_stream->clear();
 	m_stream->seekg(position, m_stream->beg);
 
 	return WasSuccess();

@@ -47,16 +47,17 @@ class _StateProgram(object):
 
             if units == "s":
                 value *= 1000
-            bcg.delay(value)
+            return [bcg.delay(value)]
 
         return ()
 
     def write(self, stream):
         for buf in self._buffer:
             stream.write(buf)
+        stream.write(bcg.end())
 
     def __len__(self):
-        return sum((len(x) for x in self._buffer))
+        return sum((len(x) for x in self._buffer)) + 1
 
     @property
     def offset(self):
