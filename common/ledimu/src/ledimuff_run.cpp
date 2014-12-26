@@ -43,7 +43,7 @@ void LedImuFile::push(uint8_t typecode_i, Stack &stack, uint8_t *storage) {
 int LedImuFile::run_state()
 {
 	bool done = false;
-	uint8_t return_state = 0;
+	uint8_t return_state = -1;
 	uint8_t storage[16];
 	Stack stack;
 	std::unique_ptr<StackEntry> entry;
@@ -51,7 +51,6 @@ int LedImuFile::run_state()
 	while(!done)
 	{
 		m_file->ReadByte(storage);
-		std::cout << "Read:" << std::hex << (int)storage[0] << std::endl;
 		IF_ERROR(m_file, -1);
 
 		switch(storage[0]) {
@@ -79,6 +78,17 @@ int LedImuFile::run_state()
 					m_runner->delay(entry->GetShort());
 				} else {
 					std::cout << "Failed to delay" << std::endl;
+				}
+				stack.pop();
+				break;
+
+			case 0xFE:
+				std::cout << "Received Next State" << std::endl;
+				entry = std::move(stack.top());
+				if (entry->GetType() == TypeCodes::BYTE)
+				{
+					return_state = entry->GetByte();
+					std::cout << "Next State: " << return_state << std::endl;
 				}
 				stack.pop();
 				break;
@@ -112,5 +122,5 @@ int LedImuFile::RunState(int state_number)
 	}
 
 	int retval = run_state();
-	return retval <= 0 ? state_number : retval;
+	return retval < 0 ? state_number : retval;
 }

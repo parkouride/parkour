@@ -71,10 +71,11 @@ void SimulatorApp::update()
 
 void SimulatorApp::draw()
 {
-	update();
+	// update();
+	gl::clear( Color( 0.3f, 0.3f, 0.3f) );
 	gl::pushMatrices();
 	gl::translate(50.0f, 50.0f);
-	gl::clear( Color( 0.3f, 0.3f, 0.3f) );
+
 	static_cast<SimulationRunner*>(m_runner.get())->draw(0);
 	gl::popMatrices();
 }

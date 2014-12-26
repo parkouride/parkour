@@ -51,13 +51,33 @@ class _StateProgram(object):
 
         return ()
 
-    def write(self, stream):
+    @staticmethod
+    def _add_next(arguments):
+
+        def _generate(state_name, symbol_table):
+            return bcg.next_state(symbol_table[state_name])
+
+        if arguments.type == "symbol":
+            state = arguments.value
+
+            return [lambda x: _generate(state, x)]
+
+        return ()
+
+    def write(self, stream, symbol_table):
         for buf in self._buffer:
+            if callable(buf):
+                buf = buf(symbol_table)
+
             stream.write(buf)
         stream.write(bcg.end())
 
     def __len__(self):
-        return sum((len(x) for x in self._buffer)) + 1
+        retval = sum((len(x) for x in self._buffer if not callable(x))) 
+        retval += sum(4 for x in self._buffer if callable(x))  # Callables are always push, need to figure out how to calculate this
+        retval += 1  # End of State Marker
+
+        return retval
 
     @property
     def offset(self):

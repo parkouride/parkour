@@ -93,10 +93,19 @@ class Compiler(object):
             header_arguments['pixel_count'] = int(self._directives['numleds'].value)
 
         order_state_keys = sorted(self._states.keys(), key=lambda x: self._states[x].offset)
+
+        # Generate symbol table for states
+        symbol_table = {}
+        for i in range(len(order_state_keys)):
+            symbol_table[order_state_keys[i]] = i
+
+        import pprint
+        pprint.pprint(symbol_table, indent=2)
+
         with open(self._output, "wb") as f:
             f.write(bcg.header(**header_arguments))
             for state_name in order_state_keys:
-                self._states[state_name].write(f)
+                self._states[state_name].write(f, symbol_table)
             for state_name in order_state_keys:
                 data = bcg.str(state_name)
                 f.write(data)
@@ -176,7 +185,11 @@ DelayOpCode = CaselessKeyword("Delay").setResultsName('opcode')
 DelayOpCodeArguments = (Duration ^ CompilerDirective).setResultsName('arguments')
 Delay = Group(DelayOpCode + DelayOpCodeArguments)
 
-Codes = OneOrMore(SetAll ^ Delay).setResultsName('code')
+NextStateOpCode = CaselessKeyword("Next").setResultsName('opcode')
+NextStateOpCodeArguments = (Symbol).setResultsName('arguments')
+NextState = Group(NextStateOpCode + NextStateOpCodeArguments)
+
+Codes = OneOrMore(SetAll ^ Delay ^ NextState).setResultsName('code')
 
 StateName = Symbol.setResultsName("state_name")
 StateEntry = Group(State + StateName + StartBlock + Codes + EndBlock)

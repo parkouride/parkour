@@ -7,11 +7,13 @@
 states {
   state foo {
     setall #ffffff
-    delay 100ms
+    delay 500ms
+    next bar
   }
   state bar {
     setall #ff0000
   	delay 500ms
+  	next foo
   }
 }
 
