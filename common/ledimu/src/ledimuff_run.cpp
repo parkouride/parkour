@@ -4,7 +4,7 @@
 #include "ledimu_error.h"
 #include "stack.h"
 
-#define IF_ERROR(x, y) if (!*x) { return y; }
+#define IF_ERROR(x, y) if (!x->WasSuccess()) { return y; }
 
 using namespace ledvm;
 
@@ -13,7 +13,7 @@ void LedImuFile::push(uint8_t typecode_i, Stack &stack, uint8_t *storage) {
 	TypeCodes typecode = static_cast<TypeCodes>(typecode_i);
 	switch(typecode) {
 		case TypeCodes::BYTE:
-			read<uint8_t>(storage);
+			m_file->ReadByte(storage); // TODO: Proper Error Handling
 			entry = create_stack_entry<uint8_t>(typecode, storage[0]);
 			stack.push(std::move(entry));
 			break;
@@ -41,14 +41,14 @@ int LedImuFile::run_state(uint8_t *buffer)
 
 	while(!done)
 	{
-		read<uint8_t>(storage);
+		m_file->ReadByte(storage);
 		IF_ERROR(m_file, -1);
 
 		switch(storage[0]) {
 			case 0x00: break; // NOP
 
 			case 0x01: // PUSH
-				read<uint8_t>(&storage[1]); // Typecode
+				m_file->ReadByte(&storage[1]); // Typecode // TODO: Proper Error Handling
 				push(storage[1], stack, storage);
 				break;
 

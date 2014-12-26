@@ -1,7 +1,9 @@
 #pragma once
 
-#define CHECK_ERROR(x) if ((retval=x) != 0) { return retval; }
-#define CHECK_ERROR_NULL(x) if (x != 0) { return nullptr; }
+// #define CHECK_ERROR(x) if ((retval=x) != 0) { return retval; }
+// #define CHECK_ERROR_NULL(x) if (x != 0) { return nullptr; }
+#define CHECK_ERROR(x) x;
+#define CHECK_ERROR_NULL(x) x
 
 typedef enum LedImuFileErrorEnum
 {

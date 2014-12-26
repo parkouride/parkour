@@ -31,8 +31,8 @@ LedImuFileError LedImuFile::Load()
 LedImuFileError LedImuFile::Load(const char *filename)
 {
 	LedImuFileError retval = LedImuFileError::success;
-	m_file = std::unique_ptr<std::ifstream>(new std::ifstream(filename));
-	if (!*m_file) {
+	m_file = std::unique_ptr<ByteStream>(new ByteStream(filename));
+	if (!m_file->WasSuccess()) {
 		return LedImuFileError::file_not_found;
 	}
 	CHECK_ERROR(read_header());
@@ -44,23 +44,24 @@ inline LedImuFileError LedImuFile::read_header()
 {
 	LedImuFileError retval;
 
-	CHECK_ERROR(read_magic_marker(m_header.start_marker, "PARK"))
-	CHECK_ERROR(read(&m_header.state_count))
+	CHECK_ERROR(read_magic_marker(m_header.start_marker, "PARK")) // TODO: Proper Error Handling
+	CHECK_ERROR(m_file->ReadByte(&m_header.state_count)) // TODO: Proper Error Handling
 
 	if (GetNumberStates() <= 0)
 	{
 		return LedImuFileError::no_states_specified;
 	}
-	CHECK_ERROR(read(&m_header.required_pixel_count))
+	m_header.state_position.reset(new uint16_t[m_header.state_count]);
+
+	CHECK_ERROR(m_file->ReadByte(&m_header.required_pixel_count)) // TODO:: Proper Error Handling
 	if (m_header.required_pixel_count > m_pixel_count)
 	{
 		return LedImuFileError::not_enough_pixels;
 	}
 
-	CHECK_ERROR(read(&m_header.state_name_mapping_position))
-	CHECK_ERROR(read(&m_header.state_decision_position))
-	CHECK_ERROR(read_array<uint16_t>(m_header.state_position,
-		m_header.state_count));
+	CHECK_ERROR(m_file->ReadShort(&m_header.state_name_mapping_position))
+	CHECK_ERROR(m_file->ReadShort(&m_header.state_decision_position))
+	CHECK_ERROR(m_file->ReadShortArray(m_header.state_position.get(), m_header.state_count))
 	CHECK_ERROR(read_magic_marker(m_header.end_marker, "HEND"))
 
 	loaded = true;
@@ -69,8 +70,8 @@ inline LedImuFileError LedImuFile::read_header()
 
 LedImuFileError LedImuFile::read_magic_marker(char *buffer, const char marker[4])
 {
-	m_file->read(buffer, 4);
-	if (!*m_file)
+	m_file->ReadCharArray(buffer, 4);
+	if (!m_file->WasSuccess())
 	{
 		return LedImuFileError::invalid_file;
 	}
@@ -83,42 +84,3 @@ LedImuFileError LedImuFile::read_magic_marker(char *buffer, const char marker[4]
 	return LedImuFileError::success;
 }
 
-template<typename T>
-LedImuFileError LedImuFile::read(T *buffer)
-{
-	m_file->read(reinterpret_cast<char *>(buffer), sizeof(T));
-	if (!*m_file)
-	{
-		return LedImuFileError::invalid_file;
-	}
-
-	return LedImuFileError::success;
-}
-
-template<typename T>
-LedImuFileError LedImuFile::read_array(std::unique_ptr<T[]> &buffer, int count)
-{
-	buffer.reset(new T[count]);
-	m_file->read(reinterpret_cast<char *>(buffer.get()),
-		count * sizeof(T));
-
-	return LedImuFileError::success;
-}
-
-template<typename T>
-LedImuFileError LedImuFile::read_arguments(T* buffer, int count)
-{
-	m_file->read(reinterpret_cast<char *>(buffer), count);
-
-	if (!*m_file)
-	{
-		return LedImuFileError::unknown_error;
-	}
-
-	return LedImuFileError::success;
-}
-
-template LedImuFileError LedImuFile::read_arguments<uint8_t>(uint8_t* buffer, int count);
-template LedImuFileError LedImuFile::read_arguments<uint16_t>(uint16_t* buffer, int count);
-template LedImuFileError LedImuFile::read<uint8_t>(uint8_t* buffer);
-template LedImuFileError LedImuFile::read<uint16_t>(uint16_t* buffer);

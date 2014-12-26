@@ -12,6 +12,7 @@
 #include <fstream>
 #include <tuple>
 
+#include "bytestream.h"
 #include "ledimu_data.h"
 #include "ledimu_error.h"
 #include "imurunner.h"
@@ -44,7 +45,7 @@ public:
   std::unique_ptr<char[]> GetStateName(int state_number);
 
 private:
-  std::unique_ptr<std::ifstream> m_file;
+  std::unique_ptr<ByteStream> m_file;
   std::shared_ptr<ImuRunner> m_runner;
   int m_pixel_count;
   struct LedImuHeader m_header;
@@ -52,15 +53,6 @@ private:
 
   LedImuFileError read_header();
   LedImuFileError read_magic_marker(char *buffer, const char marker[4]);
-  
-  template<typename T>
-  LedImuFileError read(T *buffer);
-
-  template<typename T>
-  LedImuFileError read_array(std::unique_ptr<T[]> &buffer, int count);
-
-  template<typename T>
-  LedImuFileError read_arguments(T* buffer, int count);
 
   uint8_uptra get_state(int state_number); // Implicit move?
   int run_state(uint8_t *buffer);

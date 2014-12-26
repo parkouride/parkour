@@ -4,7 +4,8 @@
 #include <iostream>
 #include <iomanip>
 
-#define RET_NULL_IF_FAILED(x) if (!*x) { return nullptr; }
+#define RET_NULL_IF_FAILED(x) if (!x->WasSuccess()) { return nullptr; }
+#define RET_NULL_IF_FAIL(x) if (!(x)) { return nullptr; }
 
 using namespace ledvm;
 
@@ -28,16 +29,13 @@ uint8_uptra LedImuFile::get_state(int state_number)
 	uint16_t state_size;
 
 	// Seek to beginning of state
-	m_file->seekg(file_position, m_file->beg);
-	RET_NULL_IF_FAILED(m_file)
+	RET_NULL_IF_FAIL(m_file->Seek(file_position))
 
 	// Read the length of the state
-	read<uint16_t>(&state_size);
-	RET_NULL_IF_FAILED(m_file)
+	RET_NULL_IF_FAIL(m_file->ReadShort(&state_size))
 
 	auto retval = new uint8_t[state_size];
-	m_file->read(reinterpret_cast<char *>(retval), state_size);
-	RET_NULL_IF_FAILED(m_file)
+	RET_NULL_IF_FAIL(m_file->ReadByteArray(retval, state_size))
 
 	return uint8_uptra(retval);
 }
@@ -46,14 +44,13 @@ std::unique_ptr<char[]> LedImuFile::GetStateName(int state_number)
 {
 	uint8_t string_length;
 	// Seek to the beginning of state name mapping
-	m_file->seekg(m_header.state_name_mapping_position);
-	RET_NULL_IF_FAILED(m_file)
+	RET_NULL_IF_FAIL(m_file->Seek(m_header.state_name_mapping_position))
+	RET_NULL_IF_FAIL(m_file->ReadByte(&string_length))
 
-	read(&string_length);
-	while(state_number > 0 && *m_file) {
-		m_file->seekg(string_length, m_file->cur);
+	while(state_number > 0 && m_file->WasSuccess()) {
+		m_file->Skip(string_length);
 		--state_number;
-		read(&string_length);
+		m_file->ReadByte(&string_length);
 	}
 
 	if (state_number > 0) {
@@ -61,7 +58,7 @@ std::unique_ptr<char[]> LedImuFile::GetStateName(int state_number)
 	}
 
 	auto retval = new char[string_length+1] {0};
-	m_file->read(retval, string_length);
+	m_file->ReadCharArray(retval, string_length);
 
 	return std::unique_ptr<char[]>(retval);
 }
