@@ -10,24 +10,29 @@ using namespace ledvm;
 
 void LedImuFile::push(uint8_t typecode_i, Stack &stack, uint8_t *storage) {
 	std::unique_ptr<StackEntry> entry;
+
 	TypeCodes typecode = static_cast<TypeCodes>(typecode_i);
 	switch(typecode) {
 		case TypeCodes::BYTE:
 			m_file->ReadByte(storage); // TODO: Proper Error Handling
-			entry = create_stack_entry<uint8_t>(typecode, storage[0]);
+			entry = ByteEntry::Create(storage[0]);
 			stack.push(std::move(entry));
 			break;
+
 		case TypeCodes::SHORT:
 			m_file->ReadShort(reinterpret_cast<uint16_t*>(storage));
-			entry = create_stack_entry<uint16_t>(typecode,
+			entry = ShortEntry::Create(
 				(reinterpret_cast<uint16_t*>(storage))[0]);
 			std::cout << "X" << entry->GetShort() << std::endl;
 			stack.push(std::move(entry));
 			break;
+
 		case TypeCodes::COLOR:
 			m_file->ReadByteArray(storage, 3);
-
+			entry = ColorEntry::Create(Color {storage});
+			stack.push(std::move(entry));
 			break;
+
 		case TypeCodes::UNKNOWN:
 		default:
 			// TODO: Error Handling
@@ -58,7 +63,12 @@ int LedImuFile::run_state()
 				break;
 
 			case 0x10: // SET ALL
-				// stack.pop();
+				entry = std::move(stack.top());
+				if (entry->GetType() == TypeCodes::COLOR)
+				{
+					m_runner->set_all(entry->GetColor());
+				}
+				stack.pop();
 				break;
 
 			case 0x11: // DELAY

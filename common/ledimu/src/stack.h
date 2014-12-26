@@ -1,4 +1,7 @@
 #pragma once
+#ifndef MY_STACK_H
+#define MY_STACK_H
+
 #include <stack>
 #include <memory>
 #include "ledimu_data.h"
@@ -24,7 +27,7 @@ public:
 
 	virtual uint8_t GetByte() { return 0; /* Error */ }
 	virtual uint16_t GetShort() { return 0; /* Error */ }
-	virtual std::unique_ptr<Color> GetColor() { return nullptr; }
+	virtual Color GetColor() { return nullptr; }
 
 private:
 	TypeCodes m_type;
@@ -37,6 +40,7 @@ public:
 	ByteEntry(uint8_t value) : StackEntry(TypeCodes::BYTE), m_value(value) {}
 
 	uint8_t GetByte() { return m_value; }
+	static std::unique_ptr<StackEntry> Create(uint8_t value);
 
 private:
 	uint8_t m_value;
@@ -49,6 +53,7 @@ public:
 	ShortEntry(uint16_t value) : StackEntry(TypeCodes::SHORT), m_value(value) {}
 
 	uint16_t GetShort() { return m_value; }
+	static std::unique_ptr<StackEntry> Create(uint16_t value);
 
 private:
 	uint16_t m_value;
@@ -58,36 +63,14 @@ class ColorEntry : public StackEntry
 {
 public:
 	ColorEntry() : StackEntry(TypeCodes::COLOR), m_value(nullptr) {}
-	ColorEntry(std::unique_ptr<Color> value) : StackEntry(TypeCodes::COLOR), m_value(std::move(value)) {}
+	ColorEntry(Color value) : StackEntry(TypeCodes::COLOR), m_value(value) {}
 
-	std::unique_ptr<Color> GetColor() { return std::move(m_value); }
+	Color GetColor() { return m_value; }
+	static std::unique_ptr<StackEntry> Create(Color value);
 
 private:
-	std::unique_ptr<Color> m_value;
+	Color m_value;
 };
-
-template<typename T>
-std::unique_ptr<StackEntry> create_stack_entry(TypeCodes typecode, T value) {
-	switch(typecode) {
-		case TypeCodes::BYTE:
-			return std::unique_ptr<StackEntry>(
-				static_cast<StackEntry *>(new ByteEntry(static_cast<uint8_t>(value)))
-				);
-			break;
-		case TypeCodes::SHORT:
-			return std::unique_ptr<StackEntry>(
-				static_cast<StackEntry *>(new ShortEntry(static_cast<uint16_t>(value)))
-				);
-			break;
-		case TypeCodes::COLOR:
-			break;
-		case TypeCodes::UNKNOWN:
-		default:
-			break;
-	}
-
-	return nullptr;
-}
 
 class Stack : public std::stack<std::unique_ptr<StackEntry> >
 {
@@ -95,3 +78,5 @@ class Stack : public std::stack<std::unique_ptr<StackEntry> >
 };
 
 } // namespace ledvm
+
+#endif // MY_STACK_H
