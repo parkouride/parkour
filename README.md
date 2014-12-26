@@ -24,7 +24,12 @@ Details coming soon
 simulator
 ---------
 
-Details coming soon
+The simulator runs using cinder to visualize the LED programs being run.  (eventually) You can feed
+recorded IMU data to test how your leds will react to the motion that was recorded.
+
+Here are some sample videos:
+
+[![Simple On and Off states](http://img.youtube.com/vi/aTuiwGLYea4/0.jpg)](https://www.youtube.com/watch?v=aTuiwGLYea4)
 
 firmware
 --------
