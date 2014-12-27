@@ -189,7 +189,20 @@ NextStateOpCode = CaselessKeyword("Next").setResultsName('opcode')
 NextStateOpCodeArguments = (Symbol).setResultsName('arguments')
 NextState = Group(NextStateOpCode + NextStateOpCodeArguments)
 
-Codes = OneOrMore(SetAll ^ Delay ^ NextState).setResultsName('code')
+Statements = SetAll ^ Delay ^ NextState
+StatementBlock = StartBlock + ZeroOrMore(Statements) + EndBlock
+
+# Control statements
+ForeachCode = CaselessKeyword("ForEach").setResultsName('opcode')
+ForeachMain = ForeachCode + StatementBlock.setResultsName('main')
+ForeachFirst = CaselessKeyword("first").suppress() + StatementBlock.setResultsName('first')
+ForeachLast = CaselessKeyword("last").suppress() + StatementBlock.setResultsName('last')
+Foreach = Group(ForeachMain + Optional(ForeachFirst) + Optional(ForeachLast))
+
+Controls = Foreach
+
+
+Codes = ZeroOrMore(Statements ^ Controls).setResultsName('code')
 
 StateName = Symbol.setResultsName("state_name")
 StateEntry = Group(State + StateName + StartBlock + Codes + EndBlock)

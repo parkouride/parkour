@@ -88,7 +88,7 @@ int LedImuFile::run_state()
 				if (entry->GetType() == TypeCodes::BYTE)
 				{
 					return_state = entry->GetByte();
-					std::cout << "Next State: " << return_state << std::endl;
+					std::cout << "Next State: " << (int)return_state << std::endl;
 				}
 				stack.pop();
 				break;
@@ -110,7 +110,7 @@ int LedImuFile::RunState(int state_number)
 {
 	if (state_number < 0 || state_number > m_header.state_count)
 	{
-		std::cout << "State out of range: " << state_number << " -> " << m_header.state_count << std::endl;
+		std::cout << "State out of range: " << state_number << " -> " << (int)m_header.state_count << std::endl;
 		return -2;
 	}
 
@@ -121,6 +121,5 @@ int LedImuFile::RunState(int state_number)
 		return -1;
 	}
 
-	int retval = run_state();
-	return retval < 0 ? state_number : retval;
+	return run_state();
 }

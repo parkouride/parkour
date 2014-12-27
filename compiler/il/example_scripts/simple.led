@@ -1,8 +1,6 @@
 %version 1
 %numleds 4
 %start bar
-%require accel
-%require gyro
 
 states {
   state foo {

@@ -26,8 +26,12 @@ class _StateProgram(object):
     def add_line(self, tokens):
         try:
             func = functionize(self, tokens.opcode)
-            if callable(func):
+            if callable(func) and tokens.opcode != 'ForEach':  # TODO: Don't hardcode, make this data driven
                 self._buffer.extend(func(tokens.arguments))
+            elif callable(func):
+                self._buffer.extend(func(tokens))
+            else:
+                logger.warning("{}({}) unable to parse".format(tokens, tokens.opcode))
         except:
             logger.error("Unable to add line: {}".format(tokens), exc_info=True)
 
@@ -49,6 +53,11 @@ class _StateProgram(object):
                 value *= 1000
             return [bcg.delay(value)]
 
+        return ()
+
+    @staticmethod
+    def _add_for_each(tokens):
+        print(dir(tokens))
         return ()
 
     @staticmethod

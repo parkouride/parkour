@@ -3,5 +3,5 @@
 
 
 bin/premake4 gmake && \
-  (cd build && make) && \
+  (cd build/gmake && make) && \
   simulator/LedSimulator.app/Contents/MacOS/LedSimulator
