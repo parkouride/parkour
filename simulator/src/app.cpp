@@ -5,12 +5,16 @@
 #include "cinder/Color.h"
 
 #include "ledimuff.h"
+#include "posix/bytestream.h"
 #include "led.h"
 #include "simrun.h"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
+
+template class ledvm::LedImuFile<ByteStream, SimulationRunner>;
+using LedFile = ledvm::LedImuFile<ByteStream, SimulationRunner>;
 
 const vector<string> extensions {
 	"ledprog"
@@ -24,8 +28,7 @@ public:
 	 void mouseDrag( MouseEvent event );
      void keyDown( KeyEvent event );
  private:
- 	shared_ptr<ledvm::ImuRunner> m_runner;
- 	unique_ptr<ledvm::LedImuFile> m_file;
+ 	unique_ptr<LedFile> m_file;
  	int m_led_count, m_state = 0;
 };
 
@@ -35,11 +38,10 @@ void SimulatorApp::setup()
 	if (vm_program.empty()) {
 		quit();
 	}
-	int count = ledvm::LedImuFile::RequiredPixelCountFor(vm_program.c_str());
-	m_runner.reset(static_cast<ledvm::ImuRunner*>(new SimulationRunner(count)));
-	m_file.reset(new ledvm::LedImuFile(m_runner, count));
+	int count = LedFile::RequiredPixelCountFor(vm_program.c_str());
+	m_file.reset(new LedFile(count, vm_program.c_str()));
 
-	m_file->Load(vm_program.c_str());
+	m_file->Load();
 
 }
 
@@ -76,7 +78,7 @@ void SimulatorApp::draw()
 	gl::pushMatrices();
 	gl::translate(50.0f, 50.0f);
 
-	static_cast<SimulationRunner*>(m_runner.get())->draw(0);
+    m_file->GetRunner()->draw(0);
 	gl::popMatrices();
 }
 

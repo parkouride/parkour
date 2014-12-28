@@ -20,7 +20,7 @@ public:
 
 private:
 	template <typename T>
-	T read();
+    T read();
 
 	template <typename T>
 	void read(T* storage, int count);
