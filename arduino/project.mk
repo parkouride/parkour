@@ -11,9 +11,9 @@ ARDUINO_DIR = /Applications/ArduinoYun.app/Contents/Resources/Java
 ARDMK_DIR = /usr/local/Cellar/arduino-mk/HEAD
 AVR_TOOLS_DIR = /usr/local
 MONITOR_PORT = /dev/ttyACM0
-BOARD_TAG = uno
+BOARD_TAG = pro
+BOARD_SUB = 16MHzatmega328
 ARCHITECTURE = avr
-BOARD_SUB = atmega168
 ARDUINO_LIBS = 
 
 CURRENT_DIR = $(shell basename $(CURDIR))
