@@ -16,4 +16,7 @@ namespace ledvm {
 
     class _Stack {
     };
+
+    using uint16_arr = uint16_t*;
+
 } // ledvm

@@ -18,4 +18,7 @@ namespace ledvm {
             static_cast<StackEntry_raw>(value)
         );
     };
+
+    using uint16_arr = std::unique_ptr<uint16_t[]>;
+
 } // ledvm

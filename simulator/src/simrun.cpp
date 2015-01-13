@@ -4,6 +4,7 @@
 #include <thread>
 
 #include "cinder/Color.h"
+#include "color.h"
 #include "ledimu_data.h"
 #include "simrun.h"
 

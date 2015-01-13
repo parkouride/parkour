@@ -1,7 +1,6 @@
 #pragma once
 
-#include <cstdint>
-#include <memory>
+#include "types.h"
 
 namespace ledvm {
 
@@ -16,7 +15,7 @@ struct LedImuHeader
 	uint16_t state_decision_position;
 
 	// number of shorts = state_count
-	std::unique_ptr<uint16_t[]> state_position;
+	uint16_arr state_position;
 	char end_marker[4];
 };
 
