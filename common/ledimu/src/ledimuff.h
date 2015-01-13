@@ -1,5 +1,8 @@
 #pragma once
 #define LEDIMUFF_H
+#ifdef ARDUINO
+#include <arduino.h>
+#endif // ARDUINO
 
 #include <memory>
 #include "ledimu_error.h"
@@ -47,10 +50,6 @@ namespace ledvm {
         
 #include "ledimuff_static.t.hpp"
 #include "ledimuff_public.t.hpp"
-        
-
-        
-
         
     private:
         T m_file;

@@ -2,9 +2,8 @@
 #ifndef MY_STACK_H
 #define MY_STACK_H
 
-#include <stack>
-#include <memory>
-#include "ledimu_data.h"
+#include "types.h"
+#include "color.h"
 
 #define STACK_SIZE 32
 
@@ -27,7 +26,7 @@ public:
 
 	virtual uint8_t GetByte() { return 0; /* Error */ }
 	virtual uint16_t GetShort() { return 0; /* Error */ }
-	virtual Color GetColor() { return nullptr; }
+	virtual Color GetColor() { return {0,0,0}; }
 
 private:
 	TypeCodes m_type;
@@ -40,7 +39,7 @@ public:
 	ByteEntry(uint8_t value) : StackEntry(TypeCodes::BYTE), m_value(value) {}
 
 	uint8_t GetByte() { return m_value; }
-	static std::unique_ptr<StackEntry> Create(uint8_t value);
+	static StackEntry_ptr Create(uint8_t value);
 
 private:
 	uint8_t m_value;
@@ -53,7 +52,7 @@ public:
 	ShortEntry(uint16_t value) : StackEntry(TypeCodes::SHORT), m_value(value) {}
 
 	uint16_t GetShort() { return m_value; }
-	static std::unique_ptr<StackEntry> Create(uint16_t value);
+	static StackEntry_ptr Create(uint16_t value);
 
 private:
 	uint16_t m_value;
@@ -66,13 +65,13 @@ public:
 	ColorEntry(Color value) : StackEntry(TypeCodes::COLOR), m_value(value) {}
 
 	Color GetColor() { return m_value; }
-	static std::unique_ptr<StackEntry> Create(Color value);
+	static StackEntry_ptr Create(Color value);
 
 private:
 	Color m_value;
 };
 
-class Stack : public std::stack<std::unique_ptr<StackEntry> >
+class Stack : public Stack_t
 {
 
 };

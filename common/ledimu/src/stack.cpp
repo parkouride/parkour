@@ -2,20 +2,14 @@
 
 using namespace ledvm;
 
-std::unique_ptr<StackEntry> ByteEntry::Create(uint8_t value) {
-	return std::unique_ptr<StackEntry>(
-		static_cast<StackEntry *>(new ByteEntry(value))
-		);
+StackEntry_ptr ByteEntry::Create(uint8_t value) {
+	return StackEntryFactory<ByteEntry>(new ByteEntry(value));
 }
 
-std::unique_ptr<StackEntry> ShortEntry::Create(uint16_t value) {
-	return std::unique_ptr<StackEntry>(
-		static_cast<StackEntry *>(new ShortEntry(value))
-		);
+StackEntry_ptr ShortEntry::Create(uint16_t value) {
+	return StackEntryFactory<ShortEntry>(new ShortEntry(value));
 }
 
 std::unique_ptr<StackEntry> ColorEntry::Create(ledvm::Color value) {
-	return std::unique_ptr<StackEntry>(
-		static_cast<StackEntry *>(new ColorEntry(value))
-		);
+	return StackEntryFactory<ColorEntry>(new ColorEntry(value));
 }
