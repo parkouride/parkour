@@ -8,4 +8,5 @@ gtest-*
 *.ledprog
 *.app
 *.a
+*.swp
 obj
