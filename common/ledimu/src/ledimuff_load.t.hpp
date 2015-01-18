@@ -2,8 +2,8 @@
 inline LedImuFileError read_header()
 {
 
-	CHECK_ERROR(read_magic_marker(m_header.start_marker, "PARK")) // TODO: Proper Error Handling
-	CHECK_ERROR(m_file.ReadByte(&m_header.state_count)) // TODO: Proper Error Handling
+	(read_magic_marker(m_header.start_marker, "PARK"));
+	(m_file.ReadByte(&m_header.state_count));
 
 	if (GetNumberStates() <= 0)
 	{
@@ -11,18 +11,18 @@ inline LedImuFileError read_header()
 	}
 	m_header.state_position.reset(new uint16_t[m_header.state_count]);
 
-	CHECK_ERROR(m_file.ReadByte(&m_header.required_pixel_count)) // TODO:: Proper Error Handling
+	(m_file.ReadByte(&m_header.required_pixel_count));
 	if (m_header.required_pixel_count > m_pixel_count)
 	{
 		return LedImuFileError::not_enough_pixels;
 	}
 
-	CHECK_ERROR(m_file.ReadShort(&m_header.vm_version))
-	CHECK_ERROR(m_file.ReadShort(&m_header.requirements))
-	CHECK_ERROR(m_file.ReadShort(&m_header.state_name_mapping_position))
-	CHECK_ERROR(m_file.ReadShort(&m_header.state_decision_position))
-	CHECK_ERROR(m_file.ReadShortArray(m_header.state_position.get(), m_header.state_count))
-	CHECK_ERROR(read_magic_marker(m_header.end_marker, "HEND"))
+	(m_file.ReadShort(&m_header.vm_version));
+	(m_file.ReadShort(&m_header.requirements));
+	(m_file.ReadShort(&m_header.state_name_mapping_position));
+	(m_file.ReadShort(&m_header.state_decision_position));
+	(m_file.ReadShortArray(m_header.state_position.get(), m_header.state_count));
+	(read_magic_marker(m_header.end_marker, "HEND"));
 
 	loaded = true;
 	return LedImuFileError::success;

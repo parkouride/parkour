@@ -2,29 +2,29 @@
 
 #define IF_ERROR(x, y) if (!x.WasSuccess()) { return y; }
 
-void push(uint8_t typecode_i, Stack &stack, uint8_t *storage) {
-    std::unique_ptr<StackEntry> entry;
+void push(uint8_t typecode_i, Stack_t &stack, uint8_t *storage) {
+    StackEntry_ptr entry;
     
     TypeCodes typecode = static_cast<TypeCodes>(typecode_i);
     switch(typecode) {
         case TypeCodes::BYTE:
             m_file.ReadByte(storage); // TODO: Proper Error Handling
             entry = ByteEntry::Create(storage[0]);
-            stack.push(std::move(entry));
+            stack.push(entry);
             break;
             
         case TypeCodes::SHORT:
             m_file.ReadShort(reinterpret_cast<uint16_t*>(storage));
             entry = ShortEntry::Create(
                                        (reinterpret_cast<uint16_t*>(storage))[0]);
-            std::cout << "X" << entry->GetShort() << std::endl;
-            stack.push(std::move(entry));
+            LOG("X" << entry->GetShort());
+            stack.push(entry);
             break;
             
         case TypeCodes::COLOR:
             m_file.ReadByteArray(storage, 3);
             entry = ColorEntry::Create(Color {storage});
-            stack.push(std::move(entry));
+            stack.push(entry);
             break;
             
         case TypeCodes::UNKNOWN:
@@ -39,7 +39,6 @@ bool goto_state(int state_number)
     uint16_t file_position = m_header.state_position[state_number];
     
     // Seek to beginning of state
-    std::cout << 1 << std::endl;
     RET_IF_FAILED(m_file.Seek(file_position), false)
     
     return true;
@@ -50,8 +49,8 @@ int run_state()
     bool done = false;
     uint8_t return_state = -1;
     uint8_t storage[16];
-    Stack stack;
-    std::unique_ptr<StackEntry> entry;
+    Stack_t stack;
+    StackEntry_ptr entry;
     
     while(!done)
     {
@@ -67,7 +66,7 @@ int run_state()
                 break;
                 
             case 0x10: // SET ALL
-                entry = std::move(stack.top());
+                entry = stack.top();
                 if (entry->GetType() == TypeCodes::COLOR)
                 {
                     m_runner.set_all(entry->GetColor());
@@ -76,24 +75,23 @@ int run_state()
                 break;
                 
             case 0x11: // DELAY
-                entry = std::move(stack.top());
+                entry = stack.top();
                 // Assert typecode == SHORT
                 if (entry->GetType() == TypeCodes::SHORT)
                 {
                     m_runner.delay(entry->GetShort());
                 } else {
-                    std::cout << "Failed to delay" << std::endl;
+                    LOG("Failed to delay");
                 }
                 stack.pop();
                 break;
                 
             case 0xFE:
-                std::cout << "Received Next State" << std::endl;
-                entry = std::move(stack.top());
+                entry = stack.top();
                 if (entry->GetType() == TypeCodes::BYTE)
                 {
                     return_state = entry->GetByte();
-                    std::cout << "Next State: " << (int)return_state << std::endl;
+                    LOG("Next State: " << (int)return_state) ;
                 }
                 stack.pop();
                 break;
@@ -104,7 +102,7 @@ int run_state()
                 break;
                 
             default:
-                std::cout << "Unknown Opcode:" << std::hex << (int)storage[0] << std::endl;
+                LOG("Unknown Opcode:" << std::hex << (int)storage[0]);
         }
     }
     

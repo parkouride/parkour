@@ -1,7 +1,5 @@
 #include <arduino.h>
-#include "stack.h"
-#include "ledimu_data.h"
-#include "ledimu_error.h"
+#include "ledimuff.h"
 
 void setup() {}
 void loop() {}

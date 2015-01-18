@@ -3,6 +3,7 @@
 #include <memory>
 #include <stack>
 #include <cstdint>
+#include <iostream>
 
 namespace ledvm {
     // Forward decl
@@ -22,3 +23,10 @@ namespace ledvm {
     using uint16_arr = std::unique_ptr<uint16_t[]>;
 
 } // ledvm
+
+// Debugging
+#ifdef DEBUG
+#define LOG(x) std::cout << (x) << std::endl
+#else
+#define LOG(x)
+#endif
