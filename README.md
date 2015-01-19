@@ -1,6 +1,9 @@
 parkour
 =======
 
+** I'M REWRITING THE LIBRARY TO CLEAN UP THE API AND MAKE IT BETTER, this will let it work better onthe arduino, and taking into account the things I learned
+from the first draft of the library.**
+
 **This is a work in progress, nothing works yet**
 
 A programmable LED controller + IDE. By virtualizing the control of the leds, we can program the controller by swapping out
