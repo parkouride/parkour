@@ -1,0 +1,6 @@
+#pragma once
+
+#define LEDVM_VERSION_MAJOR @ledvm_VERSION_MAJOR@
+#define LEDVM_VERSION_MINOR @ledvm_VERSION_MINOR@
+
+#define LEDVM_VERSION_STR "v@ledvm_VERSION_MAJOR@.@ledvm_VERSION_MINOR@"

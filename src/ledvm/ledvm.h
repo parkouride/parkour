@@ -54,20 +54,4 @@ namespace ledvm {
     template <typename T>
     ILedVM_p _LedVmFactory();
 
-    template <typename io, typename control>
-    class LedVmBase;
-    
-#ifdef ARUDINO
-    class SdIo;
-    class FastLedControl;
-
-    using _ledvm = class LedVmBase<SdIo, FastLedControl>;
-#else // ARDUINO
-    class FdIo;
-    class SimulatorControl;
-
-    using _ledvm = class LedVmBase<FdIo, SimulatorControl>;
-#endif // ARDUINO
-
-#define LedVMFactor _LedVmFactory<_ledvm>
 }

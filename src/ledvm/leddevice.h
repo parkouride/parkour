@@ -8,4 +8,5 @@ namespace ledvm {
             virtual bool Update() = 0;
             virtual float Get() = 0;
     };
+    using ILedDevice_p = ILedDevice*;
 }
