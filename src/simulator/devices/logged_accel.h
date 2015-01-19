@@ -8,7 +8,7 @@
 
 namespace simulator {
 
-    class CSVFile {};
+    class CSVFile;
 
     template <char NAME, int INDEX>
     class AccelAxisDevice : public ledvm::ILedDevice {
