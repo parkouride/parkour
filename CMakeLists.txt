@@ -11,3 +11,4 @@ configure_file (
 
 include_directories("${PROJECT_BINARY_DIR}/gen")
 add_subdirectory(src/simulator)
+add_subdirectory(src/arduino)
