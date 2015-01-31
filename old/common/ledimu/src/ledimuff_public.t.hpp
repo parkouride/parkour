@@ -37,14 +37,14 @@ std::unique_ptr<char[]> GetStateName(int state_number)
 int RunState(int state_number) {
     if (state_number < 0 || state_number > m_header.state_count)
     {
-        std::cout << "State out of range: " << state_number << " -> " << (int)m_header.state_count << std::endl;
+        LOG("State out of range: " << state_number << " -> " << (int)m_header.state_count);
         return -2;
     }
     
     bool found_state = goto_state(state_number);
     if (!found_state)
     {
-        std::cout << "State Unknown: " << state_number << std::endl;
+        LOG("State Unknown: " << state_number);
         return -1;
     }
     

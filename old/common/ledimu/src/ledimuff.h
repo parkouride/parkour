@@ -4,16 +4,13 @@
 #include <arduino.h>
 #endif // ARDUINO
 
-#include <memory>
+#include "types.h"
+
 #include "ledimu_error.h"
 
 #ifndef LEDIMU_FILENAME
 #define LEDIMU_FILENAME "ledimu.prog"
 #endif // LEDIMU_FILENAME
-
-#include <iostream>
-#include <fstream>
-#include <tuple>
 
 #include "ledimu_data.h"
 #include "ledimu_error.h"
