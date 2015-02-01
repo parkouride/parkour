@@ -25,7 +25,7 @@ void BoxWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     
-    painter.drawLine(0, 0, width(), height());
+    painter.drawRect(5, 5, width()-10, height()-10);
 }
 
 void BoxWidget::addConnectionPoint(std::string name, led::widget::PortType type)
