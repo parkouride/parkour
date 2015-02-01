@@ -6,8 +6,9 @@ set(widgets_RESOURCES )
 QT4_WRAP_CPP(widgets_HEADER_MOC ${widgets_HEADER})
 QT4_ADD_RESOURCES(widgets_RESOURCES_RCC ${widgets_RESOURCES})
 
-add_library(widgets OBJECT ${widgets_SOURCE}
+add_library(widgets STATIC ${widgets_SOURCE}
                            ${widgets_HEADER_MOC}
                            ${widgets_RESOURCES_RCC})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR} include)
 
+add_subdirectory(test_harness)
