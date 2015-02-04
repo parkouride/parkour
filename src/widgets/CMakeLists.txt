@@ -1,8 +1,10 @@
 set(widgets_SOURCE src/box_widget.cpp
                    src/canvas.cpp
+                   src/port.cpp
     )
 set(widgets_HEADER include/box_widget.h
                    include/canvas.h
+                   include/port.h
     )
 set(widgets_HEADER_QT )
 set(widgets_RESOURCES )

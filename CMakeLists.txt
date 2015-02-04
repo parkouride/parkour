@@ -1,6 +1,9 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 2.8)
 project (ledide)
+set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/dist)
 FIND_PACKAGE(Qt4 REQUIRED)
+include(UseQt4)
+include(DeployQt4)
 
 set (ledvm_VERSION_MAJOR 0)
 set (ledvm_VERSION_MINOR 1)
