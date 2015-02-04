@@ -3,23 +3,22 @@
 #include <QGridLayout>
 #include <QWidget>
 #include "box_widget.h"
+#include "canvas.h"
 
 class HarnessWindow : public QMainWindow
 {
 public:
     HarnessWindow() {
-        QGridLayout* layout = new QGridLayout;
-        
-        QWidget* boxWidget = new led::widget::BoxWidget;
-        layout->addWidget(boxWidget);
-        
-        QWidget* central = new QWidget;
-        setCentralWidget(central);
-        central->setLayout(layout);
+        view = new led::widget::DevelopmentCanvas(this);
+        view->addItem(new led::widget::BoxWidget("Accelerometer"));
+        view->addItem(new led::widget::BoxWidget("OnValueThresholds"));
+        setCentralWidget(view);
         
         setWindowTitle("LedIDE Widget Test Harness");
-        setFixedSize(400, 400);
     }
+    
+private:
+    led::widget::DevelopmentCanvas *view;
 };
 
 int main(int argc, char *argv[ ])

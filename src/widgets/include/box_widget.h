@@ -1,6 +1,7 @@
 #pragma once
 
-#include <QFrame>
+#include <QGraphicsItem>
+#include <QRectF>
 #include <vector>
 #include <string>
 #include <memory>
@@ -16,26 +17,23 @@ namespace led {
             outlet
         };
         
-        class BoxWidget : public QFrame
+        class BoxWidget : public QGraphicsItem
         {
-            Q_OBJECT
         public:
-            BoxWidget(QWidget *parent = 0);
-            BoxWidget(QWidget *parent, PORT_LIST_PTR inlets, PORT_LIST_PTR outlets);
-            ~BoxWidget();
+            BoxWidget();
+            BoxWidget(const QString& initialName);
             
-            void addConnectionPoint(std::string name, PortType type);
+            virtual ~BoxWidget();
             
-        protected:
-            void paintEvent(QPaintEvent *event);
+            QRectF boundingRect() const;
+            void paint(QPainter *painter,
+                       const QStyleOptionGraphicsItem *option,
+                       QWidget *widget);
             
         private:
-            PORT_LIST_PTR m_inlets, m_outlets;
+            QRectF outlineRect() const;
             
-            
-        signals:
-            void addedInletPoint(std::string name);
-            void addedOutletPoint(std::string name);
+            QString m_name;
         };
         
     } // widget
