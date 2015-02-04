@@ -14,10 +14,13 @@ BoxWidget::BoxWidget()
 }
 
 BoxWidget::BoxWidget(const QString& initialName)
+    : m_inlets()
+    , m_outlets()
 {
     m_name = initialName;
     
     setFlags(ItemIsMovable | ItemIsSelectable);
+    setAcceptHoverEvents(true);
 }
 
 BoxWidget::~BoxWidget()
@@ -47,10 +50,14 @@ void BoxWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     const auto& palette = qApp->style()->standardPalette();
     QPen pen(palette.dark().color());
     const QPen& textPen(palette.text().color());
-    const QBrush& background = palette.light().color();
+    QBrush background = palette.light().color();
     
     if (option->state & QStyle::State_Selected) {
         pen.setColor(palette.highlight().color());
+    }
+    
+    if (option->state & QStyle::State_MouseOver) {
+        background.setColor(palette.midlight().color());
     }
     
     QRectF rect = outlineRect();
