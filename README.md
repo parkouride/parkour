@@ -1,8 +1,7 @@
 parkour
 =======
 
-** I'M REWRITING THE LIBRARY TO CLEAN UP THE API AND MAKE IT BETTER, this will let it work better onthe arduino, and taking into account the things I learned
-from the first draft of the library.**
+**I've changed focus on this project. The IDE is more important than a VM on the arduino, so let's just directly write arduino code**
 
 **This is a work in progress, nothing works yet**
 
