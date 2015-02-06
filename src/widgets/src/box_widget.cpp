@@ -1,4 +1,5 @@
 #include "box_widget.h"
+#include "port.h"
 #include <QPainter>
 #include <QLabel>
 #include <QApplication>
@@ -25,7 +26,7 @@ BoxWidget::BoxWidget(const QString& initialName)
 
 BoxWidget::~BoxWidget()
 {
-    // Do Nothing
+    // TODO: Delete all ports
 }
 
 QRectF BoxWidget::boundingRect() const {
@@ -39,7 +40,7 @@ QRectF BoxWidget::outlineRect() const {
     
     QFontMetricsF metrics = qApp->font();
     QRectF rect = metrics.boundingRect(m_name);
-    rect.adjust(-PADDING, -PADDING, PADDING, PADDING);
+    rect.adjust(-PADDING, -PADDING*1.5, PADDING, PADDING*1.5);
     rect.translate(-rect.center());
     
     return rect;
@@ -67,4 +68,36 @@ void BoxWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     
     painter->setPen(textPen);
     painter->drawText(rect, Qt::AlignCenter, m_name);
+}
+
+void BoxWidget::addPort(BoxPort *port, PortType type)
+{
+    int y_position = 0;
+    switch(type) {
+        case PortType::inlet:
+            m_inlets.push_back(port);
+            updatePortSizes(m_inlets);
+            break;
+            
+        case PortType::outlet:
+            y_position = this->outlineRect().height() - BoxPort::HEIGHT;
+            m_outlets.push_back(port);
+            updatePortSizes(m_outlets);
+            break;
+    }
+    y_position += this->outlineRect().y();
+    port->attach(this, y_position);
+}
+
+void BoxWidget::updatePortSizes(PORT_LIST &ports)
+{
+    
+    int width = 8;
+    int start_x = this->outlineRect().x();
+    
+    for (auto& port : ports)
+    {
+        port->updateSize(start_x, width);
+        start_x += width + BoxPort::MARGIN;
+    }
 }
